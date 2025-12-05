@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Info | BANGLAPUNK</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Fonts -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800;900&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050505;
+            color: white;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* --- Tab Styling System (Reused) --- */
+        :root {
+            --card-bg: #161616;
+        }
+
+        * { -webkit-tap-highlight-color: transparent; }
+
+        .tab-btn {
+            position: relative;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            outline: none;
+            /* Tighter padding for 4 tabs */
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+            font-size: 0.875rem; /* text-sm */
+        }
+
+        .tab-btn.active {
+            background-color: var(--card-bg);
+            color: white;
+            border-top-left-radius: 1rem;
+            border-top-right-radius: 1rem;
+            z-index: 10;
+        }
+
+        /* Scoop Effects */
+        .tab-btn.active.scoop-left::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: -20px;
+            width: 20px;
+            height: 20px;
+            background: transparent;
+            border-bottom-right-radius: 20px;
+            box-shadow: 4px 4px 0 4px var(--card-bg);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .tab-btn.active.scoop-right::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: -20px;
+            width: 20px;
+            height: 20px;
+            background: transparent;
+            border-bottom-left-radius: 20px;
+            box-shadow: -4px 4px 0 4px var(--card-bg);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .info-card {
+            background-color: var(--card-bg);
+            border-radius: 1rem;
+            min-height: 400px;
+        }
+        
+        /* Content Animation */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+    </style>
+</head>
+<body class="bg-[#050505] selection:bg-red-900 selection:text-white">
+
+    <div id="app" class="max-w-md mx-auto relative min-h-screen pb-10 bg-[#050505] shadow-2xl shadow-black flex flex-col">
+
+        <!-- Component: Navbar -->
+        <nav class="component-navbar fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-4 bg-gradient-to-b from-black/90 to-transparent max-w-md mx-auto w-full pointer-events-none">
+            <button class="text-white hover:text-gray-300 pointer-events-auto">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+            <div class="font-extrabold text-xl tracking-tighter text-white">BANGLAPUNK</div>
+            <div class="relative cursor-pointer pointer-events-auto">
+                <i data-lucide="shopping-bag" class="w-6 h-6 text-white"></i>
+                <span class="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full font-bold">3</span>
+            </div>
+        </nav>
+
+        <main class="pt-24 px-4 flex-1 flex flex-col">
+            <h1 class="text-4xl font-black uppercase mb-8 font-sans tracking-tight text-white px-2">Info</h1>
+
+            <!-- Tabs Navigation -->
+            <div class="flex items-end -mb-[1px] relative z-20 w-full">
+                <button onclick="switchTab('drops')" id="tab-drops" class="tab-btn active scoop-right flex-1 font-bold py-3 text-white">
+                    Drops
+                </button>
+                <button onclick="switchTab('about')" id="tab-about" class="tab-btn flex-1 font-bold py-3 text-gray-500 hover:text-gray-300">
+                    About Us
+                </button>
+                <button onclick="switchTab('policy')" id="tab-policy" class="tab-btn flex-1 font-bold py-3 text-gray-500 hover:text-gray-300">
+                    Policy
+                </button>
+                <button onclick="switchTab('team')" id="tab-team" class="tab-btn flex-1 font-bold py-3 text-gray-500 hover:text-gray-300">
+                    Team
+                </button>
+            </div>
+
+            <!-- Content Card -->
+            <div id="info-card" class="info-card p-6 flex-1 relative z-10 shadow-lg rounded-tl-none rounded-tr-2xl rounded-bl-2xl rounded-br-2xl transition-all">
+                
+                <!-- 1. Drops Content -->
+                <div id="content-drops" class="tab-content active text-center flex flex-col items-center justify-center h-full py-10">
+                    <div class="mb-12">
+                        <h2 class="text-xl font-bold uppercase text-gray-300 mb-2 font-sans tracking-wide">How Drops Work</h2>
+                        <p class="text-gray-500 text-sm leading-relaxed max-w-[250px] mx-auto">
+                            Explanation about drops and their lifecycle. Limited quantities, limited time.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h2 class="text-xl font-bold uppercase text-gray-300 mb-2 font-sans tracking-wide">Get a Product From<br>Previous Drop</h2>
+                        <p class="text-gray-500 text-sm leading-relaxed max-w-[280px] mx-auto">
+                            You can view products from previous drops. They won't be available to buy right now. BUT You can request restock and our team will get back to you when it's available again.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 2. About Content -->
+                <div id="content-about" class="tab-content text-left space-y-4">
+                    <h2 class="text-2xl font-black uppercase text-white mb-4">About Banglapunk</h2>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Banglapunk is more than a brand; it's a movement. Born from the chaotic energy of Dhaka's streets and fused with cyberpunk aesthetics, we craft apparel for the digital nomads and street samurais of tomorrow.
+                    </p>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        We reject fast fashion. We embrace the limited, the rare, and the raw. Our drops are temporal artifacts, meant to be collected and worn until the system crashes.
+                    </p>
+                    <div class="w-full h-32 bg-gray-800 rounded-lg mt-4 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1617137968427-85924c809a22?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover opacity-60">
+                    </div>
+                </div>
+
+                <!-- 3. Policy Content -->
+                <div id="content-policy" class="tab-content">
+                    <div class="prose prose-invert prose-sm max-w-none text-gray-400">
+                        <h3 class="text-white font-bold uppercase mb-2">Return & Refund Policy</h3>
+                        <p class="text-xs mb-4">
+                            Due to the limited nature of our drops, all sales are generally final. However, we accept returns for defective items or sizing exchanges within 7 days of delivery. Items must be unworn with tags attached.
+                        </p>
+
+                        <h3 class="text-white font-bold uppercase mb-2">Shipping Information</h3>
+                        <p class="text-xs mb-4">
+                            We ship globally. Domestic orders (BD) typically arrive within 3-5 business days. International shipping times vary by zone. Pre-order drops will include estimated shipping dates on the product page.
+                        </p>
+
+                        <h3 class="text-white font-bold uppercase mb-2">Privacy Policy</h3>
+                        <p class="text-xs mb-4">
+                            We respect your data. We only collect information necessary to process your order and notify you of drops. We do not sell your data to third-party corpo-rats.
+                        </p>
+
+                        <h3 class="text-white font-bold uppercase mb-2">Terms of Service</h3>
+                        <p class="text-xs">
+                            By accessing Banglapunk, you agree to our terms. Botting our drops is strictly prohibited and will result in order cancellation and IP bans.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 4. Team Content -->
+                <div id="content-team" class="tab-content">
+                    <h2 class="text-2xl font-black uppercase text-white mb-6">The Crew</h2>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4 bg-[#0a0a0a] p-3 rounded-xl border border-gray-800">
+                            <div class="w-12 h-12 bg-gray-700 rounded-full overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop" class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <h3 class="text-white font-bold text-sm">Ria | Founder</h3>
+                                <p class="text-xs text-gray-500">Vision & Design</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-4 bg-[#0a0a0a] p-3 rounded-xl border border-gray-800">
+                            <div class="w-12 h-12 bg-gray-700 rounded-full overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=200&auto=format&fit=crop" class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <h3 class="text-white font-bold text-sm">Kian | Tech Lead</h3>
+                                <p class="text-xs text-gray-500">System Architecture</p>
+                            </div>
+                        </div>
+
+                         <div class="flex items-center gap-4 bg-[#0a0a0a] p-3 rounded-xl border border-gray-800">
+                            <div class="w-12 h-12 bg-gray-700 rounded-full overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop" class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <h3 class="text-white font-bold text-sm">Zayn | Ops</h3>
+                                <p class="text-xs text-gray-500">Logistics & Support</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center py-8 text-[10px] text-gray-600 font-mono">
+                <p>Banglapunk Copyright 2026</p>
+                <p class="mt-1">
+                    Website made by <a href="https://instagram.com/bastok._" target="_blank" class="text-teal-400 hover:text-teal-300 font-bold">Bastok</a>
+                </p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Logic -->
+    <script>
+        lucide.createIcons();
+
+        function switchTab(tab) {
+            // 1. Reset Tabs
+            ['drops', 'about', 'policy', 'team'].forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                const content = document.getElementById(`content-${t}`);
+                
+                btn.classList.remove('active', 'scoop-left', 'scoop-right', 'text-white');
+                btn.classList.add('text-gray-500');
+                
+                content.classList.remove('active');
+            });
+
+            // 2. Set Active Tab
+            const activeBtn = document.getElementById(`tab-${tab}`);
+            const activeContent = document.getElementById(`content-${tab}`);
+            
+            activeBtn.classList.add('active', 'text-white');
+            activeBtn.classList.remove('text-gray-500');
+            activeContent.classList.add('active');
+
+            // 3. Update Corners & Scoops
+            updateCardCorners(tab);
+        }
+
+        function updateCardCorners(tab) {
+            const card = document.getElementById('info-card');
+            const btn = document.getElementById(`tab-${tab}`);
+
+            // Reset base card corners
+            card.classList.remove('rounded-tl-2xl', 'rounded-tr-2xl', 'rounded-tl-none', 'rounded-tr-none');
+
+            if (tab === 'drops') {
+                // First tab
+                btn.classList.add('scoop-right');
+                card.classList.add('rounded-tl-none', 'rounded-tr-2xl');
+            } else if (tab === 'team') {
+                // Last tab
+                btn.classList.add('scoop-left');
+                card.classList.add('rounded-tl-2xl', 'rounded-tr-none');
+            } else {
+                // Middle tabs
+                btn.classList.add('scoop-left', 'scoop-right');
+                card.classList.add('rounded-tl-2xl', 'rounded-tr-2xl');
+            }
+        }
+    </script>
+</body>
+</html>

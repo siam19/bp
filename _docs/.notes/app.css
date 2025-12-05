@@ -1,0 +1,296 @@
+@import "tailwindcss";
+
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@font-face {
+  font-family: 'Akira Extended';
+  src: url('$lib/fonts/akira-extended-superbold.woff2') format('woff2'),
+       url('$lib/fonts/akira-extended-superbold.woff') format('woff');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: oklch(17.086% 0.00334 17.166);
+  --foreground: oklch(100% 0.00011 271.152);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.141 0.005 285.823);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.141 0.005 285.823);
+  --primary: oklch(0.21 0.006 285.885);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.967 0.001 286.375);
+  --secondary-foreground: oklch(0.21 0.006 285.885);
+  --muted: oklch(0.967 0.001 286.375);
+  --muted-foreground: oklch(0.552 0.016 285.938);
+  --accent: oklch(0.967 0.001 286.375);
+  --accent-foreground: oklch(0.21 0.006 285.885);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.92 0.004 286.32);
+  --input: oklch(0.92 0.004 286.32);
+  --ring: oklch(0.705 0.015 286.067);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.141 0.005 285.823);
+  --sidebar-primary: oklch(0.21 0.006 285.885);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.967 0.001 286.375);
+  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
+  --sidebar-border: oklch(0.92 0.004 286.32);
+  --sidebar-ring: oklch(0.705 0.015 286.067);
+}
+
+.dark {
+  --background: oklch(0.141 0.005 285.823);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.21 0.006 285.885);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.21 0.006 285.885);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.92 0.004 286.32);
+  --primary-foreground: oklch(0.21 0.006 285.885);
+  --secondary: oklch(0.274 0.006 286.033);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.274 0.006 286.033);
+  --muted-foreground: oklch(0.705 0.015 286.067);
+  --accent: oklch(0.274 0.006 286.033);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.552 0.016 285.938);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.21 0.006 285.885);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.274 0.006 286.033);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.552 0.016 285.938);
+}
+
+@theme inline {
+  --font-sans: 'Akira Extended', sans-serif;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.halftone-overlay {
+  isolation: isolate;
+}
+
+.halftone-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* Halftone dot pattern: creates circular dots at regular intervals
+     - circle at 0.8px 0.8px: positions dot center slightly offset from grid origin
+     - rgba(53, 53, 53, 0.838): dark gray center of each dot
+     - rgba(125, 125, 125, 0.8) 3px: lighter gray at 3px radius creates dot boundary
+     - transparent 3px: everything beyond 3px is transparent, creating spacing between dots */
+  background-image: radial-gradient(circle at 0.8px 0.8px, rgba(53, 53, 53, 0.838) 0px, rgba(125, 125, 125, 0.8) 1px, transparent 2px);
+  /* Dot grid spacing: repeats the radial-gradient pattern every 13px horizontally and vertically */
+  background-size: 10px 10px;
+  mix-blend-mode: screen;
+  opacity: 0.85;
+  /* Gradient fade mask: controls halftone visibility from top to bottom
+     - 180deg: top-to-bottom vertical gradient
+     - 95% opacity at 10%: nearly full visibility at top
+     - 70% opacity at 35%: moderate fade in upper-middle area
+     - 20% opacity at 70%: nearly invisible in lower portion, creating smooth fadeout */
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 10%, rgba(0, 0, 0, 0.7) 35%, rgba(0, 0, 0, 0.2) 80%);
+  -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 10%, rgba(0, 0, 0, 0.7) 35%, rgba(0, 0, 0, 0.2) 80%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.halftone-overlay > * {
+  position: relative;
+  z-index: 1;
+}
+
+.cart-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(27, 28, 27, 0.2);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  color: #ffffff;
+  transition: transform 160ms ease;
+}
+
+.cart-item:hover {
+  transform: translateY(-2px);
+}
+
+.cart-item:active {
+  transform: translateY(0);
+}
+
+.cart-item__image {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 0.85rem;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.cart-item__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.cart-item__title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #ffffff;
+  margin: 0;
+}
+
+.cart-item__meta {
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+
+.cart-item__price {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.cart-item__remove {
+  width: 2.4rem;
+  height: 2.4rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 153, 172, 0.5);
+  background: linear-gradient(135deg, rgba(255, 95, 125, 0.18), rgba(255, 95, 125, 0.05));
+  color: #bb4c61;
+  transition: background 160ms ease, transform 160ms ease, box-shadow 200ms ease;
+}
+
+/* .cart-item__remove:hover {
+  background: linear-gradient(135deg, rgba(255, 95, 125, 0.32), rgba(255, 95, 125, 0.12));
+  box-shadow: 0 10px 24px rgba(255, 95, 125, 0.35);
+  transform: translateY(-1px);
+} */
+
+.cart-item__remove:active {
+  transform: translateY(0);
+}
+
+.cart-item__remove-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+  stroke-width: 2;
+}
+
+@layer utilities {
+	.halftone-background-animated {
+		position: fixed;
+		inset: 0;
+		z-index: -1;
+		/* Similar pattern to .halftone-overlay but animated */
+		background-image: radial-gradient(circle at 0.8px 0.8px, rgba(27, 27, 27, 0.838) 0px, rgba(125, 125, 125, 0.8) 1px, transparent 2px);
+		background-size: 15px 15px;
+		opacity: 0.4; /* Lighter than 0.85, but visible enough */
+		pointer-events: none;
+		mix-blend-mode: screen;
+		/* animation: halftone-move 5s ease-in-out infinite; */
+		mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 10%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.2) 90%);
+	}
+
+	/* @keyframes halftone-move {
+		0% {
+			background-position: 0 0;
+		}
+		100% {
+			background-position: 5px 5px;
+		}
+	 } */
+
+	.animate-marquee {
+		animation: marquee 10s linear infinite;
+	}
+
+	@keyframes marquee {
+		0% {
+			transform: translateX(0);
+		}
+		100% {
+			transform: translateX(-100%);
+		}
+	}
+}

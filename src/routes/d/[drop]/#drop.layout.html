@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PANTER Drop | BANGLAPUNK</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Fonts -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800;900&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050505;
+            color: white;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-[#050505] selection:bg-red-900 selection:text-white">
+
+    <!-- App Container -->
+    <div id="app" class="max-w-md mx-auto relative min-h-screen pb-20 bg-[#050505] shadow-2xl shadow-black">
+
+        <!-- Component: Navbar -->
+        <nav class="component-navbar fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-4 bg-gradient-to-b from-black/90 to-transparent max-w-md mx-auto w-full pointer-events-none">
+            <!-- Pointer events none on container to let clicks pass through to content if needed, auto on buttons -->
+            <button class="text-white hover:text-gray-300 pointer-events-auto">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+            <div class="font-extrabold text-xl tracking-tighter text-white">BANGLAPUNK</div>
+            <div class="relative cursor-pointer pointer-events-auto">
+                <i data-lucide="shopping-bag" class="w-6 h-6 text-white"></i>
+                <span class="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full font-bold">3</span>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="pt-20 px-4">
+
+            <!-- Component: Countdown (Sticky Context) -->
+            <section class="component-countdown flex justify-center items-center gap-1 text-white text-xl font-medium py-4 mb-2 font-mono border-b border-gray-900/50">
+                <span id="cd-days" class="font-bold text-white">13</span><span class="text-xs text-gray-500 mr-2">Days</span>
+                <span id="cd-hours" class="font-bold text-white">16</span><span class="text-xs text-gray-500 mr-2">Hours</span>
+                <span id="cd-mins" class="font-bold text-white">24</span><span class="text-xs text-gray-500">Min</span>
+            </section>
+
+            <!-- Component: DropCarousel -->
+            <section class="component-drop-carousel relative w-full h-56 overflow-hidden rounded-2xl mb-8 bg-gray-900 group">
+                <div id="carousel-slides" class="relative w-full h-full">
+                    <div class="carousel-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-100">
+                        <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover" alt="Banner 1">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    </div>
+                    <div class="carousel-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-0">
+                        <img src="https://images.unsplash.com/photo-1634152962476-4b8a00e1915c?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover" alt="Banner 2">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    </div>
+                </div>
+
+                <!-- Brand Overlay Removed -->
+
+                 <!-- 3D Text Title (Static Image or Styled Text) -->
+                 <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <h1 class="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-gray-200 to-gray-600 tracking-tighter drop-shadow-lg transform -rotate-3" style="font-family: Impact, sans-serif; -webkit-text-stroke: 1px rgba(255,255,255,0.3);">
+                        PANTER
+                    </h1>
+                 </div>
+
+                <!-- Dots -->
+                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+                    <div id="dot-0" class="carousel-dot w-1.5 h-1.5 rounded-full bg-white transition-colors"></div>
+                    <div id="dot-1" class="carousel-dot w-1.5 h-1.5 rounded-full bg-gray-600 transition-colors"></div>
+                </div>
+            </section>
+
+            <!-- Drop Description -->
+            <div class="text-center mb-10 px-2">
+                <h2 class="text-4xl font-black text-white mb-3 uppercase tracking-tight font-sans">Panter</h2>
+                <p class="text-gray-400 text-xs leading-relaxed max-w-xs mx-auto">
+                    This drop is for all the homies who never leave your side even in your darkest times. Here we celebrate love and friendship that is beyond kinship.
+                </p>
+            </div>
+
+            <!-- Component: DropVideo -->
+            <section class="component-drop-video relative w-full aspect-video rounded-xl overflow-hidden mb-12 group bg-gray-900 border border-gray-800">
+                <video id="drop-video" class="w-full h-full object-cover" poster="https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=1000&auto=format&fit=crop" loop playsinline>
+                    <source src="https://videos.pexels.com/video-files/5896379/5896379-sd_640_360_24fps.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                
+                <!-- Custom Play Button Overlay -->
+                <div id="video-overlay" class="absolute inset-0 flex items-center justify-center bg-black/30 cursor-pointer transition-opacity duration-300">
+                    <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center pl-1 hover:bg-white/30 transition-colors">
+                        <div class="w-0 h-0 border-t-[10px] border-t-transparent border-l-[18px] border-l-white border-b-[10px] border-b-transparent"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Component: MasonryGrid (Drop Content) -->
+            <section class="component-masonry-grid columns-2 gap-3 space-y-3">
+                
+                <!-- Product 1 -->
+                <div class="component-product-card bg-[#e5e5e5] rounded-lg overflow-hidden break-inside-avoid relative group">
+                    <div class="aspect-[4/5] relative">
+                        <img src="https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover mix-blend-multiply" alt="Spray Marlo">
+                    </div>
+                    <div class="p-2.5">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-black font-bold text-sm leading-tight max-w-[70%]">Spray Marlo - Black</h3>
+                            <i data-lucide="arrow-up-right" class="w-4 h-4 text-black"></i>
+                        </div>
+                        <div class="flex justify-between items-end">
+                            <div class="flex gap-1">
+                                <span class="text-[8px] border border-black/20 text-black px-1 py-0.5 rounded font-mono">S</span>
+                                <span class="text-[8px] border border-black/20 text-black px-1 py-0.5 rounded font-mono">L</span>
+                                <span class="text-[8px] border border-black/20 text-black px-1 py-0.5 rounded font-mono">2XL</span>
+                            </div>
+                            <div class="text-black font-bold text-sm">
+                                1200<span class="text-[8px] ml-0.5 align-top">BDT</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 2 -->
+                <div class="component-product-card bg-[#e5e5e5] rounded-lg overflow-hidden break-inside-avoid relative group">
+                    <div class="aspect-square relative">
+                        <img src="https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover mix-blend-multiply" alt="Teala Fei">
+                    </div>
+                    <div class="p-2.5">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-black font-bold text-sm leading-tight">Teala Fei</h3>
+                            <i data-lucide="arrow-up-right" class="w-4 h-4 text-black"></i>
+                        </div>
+                        <div class="flex justify-between items-end">
+                            <div class="flex gap-1">
+                                <span class="text-[8px] border border-black/20 text-black px-1 py-0.5 rounded font-mono">S</span>
+                                <span class="text-[8px] border border-black/20 text-black px-1 py-0.5 rounded font-mono">L</span>
+                            </div>
+                            <div class="text-black font-bold text-sm">
+                                1200<span class="text-[8px] ml-0.5 align-top">BDT</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 3 -->
+                <div class="component-product-card bg-[#e5e5e5] rounded-lg overflow-hidden break-inside-avoid relative group">
+                    <div class="aspect-[4/3] relative">
+                         <!-- Using a distinct colorful shirt -->
+                        <img src="https://images.unsplash.com/photo-1618354691373-d851c5c3a990?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover mix-blend-multiply" alt="Akash Bandi">
+                    </div>
+                    <div class="p-2.5">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-black font-bold text-sm leading-tight">Akash Bandi</h3>
+                            <i data-lucide="arrow-up-right" class="w-4 h-4 text-black"></i>
+                        </div>
+                        <div class="flex justify-between items-end">
+                            <div class="flex gap-1">
+                                <span class="text-[8px] border border-black/20 text-black px-1 py-0.5 rounded font-mono">S</span>
+                                <span class="text-[8px] border border-black/20 text-black px-1 py-0.5 rounded font-mono">L</span>
+                                <span class="text-[8px] border border-black/20 text-black px-1 py-0.5 rounded font-mono">2XL</span>
+                            </div>
+                            <div class="text-black font-bold text-sm">
+                                1300<span class="text-[8px] ml-0.5 align-top">BDT</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Media Card (Portrait) -->
+                <div class="component-media-card rounded-lg overflow-hidden break-inside-avoid relative group">
+                    <img src="https://images.unsplash.com/photo-1506634572416-48cdfe530110?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover" alt="Lifestyle Shot">
+                </div>
+
+                <!-- Product 4 -->
+                <div class="component-product-card bg-[#e5e5e5] rounded-lg overflow-hidden break-inside-avoid relative group">
+                    <div class="aspect-[4/5] relative">
+                        <img src="https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover mix-blend-multiply filter grayscale contrast-125" alt="Gautam">
+                    </div>
+                    <div class="p-2.5">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-black font-bold text-sm leading-tight">Gautam</h3>
+                            <i data-lucide="arrow-up-right" class="w-4 h-4 text-black"></i>
+                        </div>
+                        <div class="flex justify-between items-end">
+                            <div class="flex gap-1">
+                                <span class="text-[8px] border border-black/20 text-black px-1 py-0.5 rounded font-mono">S</span>
+                                <span class="text-[8px] border border-black/20 text-black px-1 py-0.5 rounded font-mono">L</span>
+                            </div>
+                            <div class="text-black font-bold text-sm">
+                                1300<span class="text-[8px] ml-0.5 align-top">BDT</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                 <!-- Product 5 (Extra) -->
+                 <div class="component-product-card bg-[#e5e5e5] rounded-lg overflow-hidden break-inside-avoid relative group">
+                    <div class="aspect-square relative">
+                        <img src="https://images.unsplash.com/photo-1542272454315-4c01d7abdf4a?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover mix-blend-multiply" alt="Gautam">
+                    </div>
+                    <div class="p-2.5">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-black font-bold text-sm leading-tight">Cargo Heavy</h3>
+                            <i data-lucide="arrow-up-right" class="w-4 h-4 text-black"></i>
+                        </div>
+                        <div class="flex justify-between items-end">
+                            <div class="flex gap-1">
+                                <span class="text-[8px] border border-black/20 text-black px-1 py-0.5 rounded font-mono">30</span>
+                                <span class="text-[8px] border border-black/20 text-black px-1 py-0.5 rounded font-mono">32</span>
+                            </div>
+                            <div class="text-black font-bold text-sm">
+                                2200<span class="text-[8px] ml-0.5 align-top">BDT</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+        
+        <div class="h-10"></div>
+    </div>
+
+    <!-- Logic -->
+    <script>
+        // --- 1. Icons Initialization ---
+        lucide.createIcons();
+
+        // --- 2. Countdown Logic ---
+        const endDate = new Date(Date.now() + 13 * 24 * 60 * 60 * 1000 + 16 * 60 * 60 * 1000); 
+        
+        function updateCountdown() {
+            const now = new Date();
+            const diff = endDate - now;
+            
+            if(diff > 0) {
+                document.getElementById('cd-days').innerText = Math.floor(diff / (1000 * 60 * 60 * 24));
+                document.getElementById('cd-hours').innerText = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                document.getElementById('cd-mins').innerText = Math.floor((diff / 1000 / 60) % 60);
+            }
+        }
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        // --- 3. Carousel Logic ---
+        const slides = document.querySelectorAll('.carousel-slide');
+        const dots = document.querySelectorAll('.carousel-dot');
+        let currentSlide = 0;
+
+        function rotateSlide() {
+            // Hide current
+            slides[currentSlide].classList.remove('opacity-100');
+            slides[currentSlide].classList.add('opacity-0');
+            dots[currentSlide].classList.replace('bg-white', 'bg-gray-600');
+            
+            // Increment
+            currentSlide = (currentSlide + 1) % slides.length;
+            
+            // Show new
+            slides[currentSlide].classList.remove('opacity-0');
+            slides[currentSlide].classList.add('opacity-100');
+            dots[currentSlide].classList.replace('bg-gray-600', 'bg-white');
+        }
+        setInterval(rotateSlide, 4000);
+
+        // --- 4. Video Player Logic ---
+        const videoContainer = document.querySelector('.component-drop-video');
+        const video = document.getElementById('drop-video');
+        const overlay = document.getElementById('video-overlay');
+
+        function toggleVideo() {
+            if (video.paused) {
+                video.play();
+                overlay.classList.add('opacity-0');
+                overlay.classList.add('pointer-events-none');
+            } else {
+                video.pause();
+                overlay.classList.remove('opacity-0');
+                overlay.classList.remove('pointer-events-none');
+            }
+        }
+
+        // Click on overlay to play
+        overlay.addEventListener('click', toggleVideo);
+        
+        // Click on video to pause
+        video.addEventListener('click', toggleVideo);
+
+    </script>
+</body>
+</html>

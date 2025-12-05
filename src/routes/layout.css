@@ -1,2 +1,100 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
+
+/* Custom CSS Variables (From #app.stylekit.md) */
+:root {
+	/* OKLCH Colors */
+	--bp-bg: oklch(17.086% 0.00334 17.166); /* Dark Gray/Black */
+	--bp-fg: oklch(100% 0.00011 271.152); /* White */
+	--bp-primary: oklch(0.21 0.006 285.885);
+	--bp-destructive: oklch(0.577 0.245 27.325); /* Red */
+	--bp-border: oklch(0.92 0.004 286.32);
+
+	/* Spacing & Radius */
+	--radius: 0.625rem; /* 10px */
+}
+
+/* Global Body Styles */
+body {
+	background-color: #050505;
+	color: white;
+	-webkit-font-smoothing: antialiased;
+	overflow-x: hidden;
+}
+
+/* Halftone Overlay Effect */
+.halftone-overlay {
+	position: fixed;
+	inset: 0;
+	pointer-events: none;
+	z-index: 0;
+	isolation: isolate;
+	background-image: radial-gradient(
+		circle at 0.8px 0.8px,
+		rgba(53, 53, 53, 0.838) 0px,
+		rgba(125, 125, 125, 0.8) 1px,
+		transparent 2px
+	);
+	background-size: 10px 10px;
+	mix-blend-mode: screen;
+	opacity: 0.85;
+	mask-image: linear-gradient(
+		180deg,
+		rgba(0, 0, 0, 0.8) 10%,
+		rgba(0, 0, 0, 0.7) 35%,
+		rgba(0, 0, 0, 0.2) 80%
+	);
+}
+
+/* Glassmorphism Utility */
+.glass-panel {
+	background: rgba(27, 28, 27, 0.6);
+	backdrop-filter: blur(8px);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: var(--radius);
+}
+
+/* Animations */
+@keyframes marquee {
+	0% {
+		transform: translateX(0%);
+	}
+	100% {
+		transform: translateX(-100%);
+	}
+}
+
+.animate-marquee {
+	display: inline-block;
+	white-space: nowrap;
+	animation: marquee 10s linear infinite;
+}
+
+@keyframes pulsate {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.5;
+	}
+}
+
+.animate-pulsate {
+	animation: pulsate 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Hide Scrollbar but keep functionality */
+.no-scrollbar::-webkit-scrollbar {
+	display: none;
+}
+.no-scrollbar {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+
+/* Selection Styling */
+::selection {
+	background-color: #7f1d1d; /* red-900 */
+	color: white;
+}

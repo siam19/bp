@@ -25,5 +25,10 @@
 		"typescript": "^5.9.3",
 		"vite": "^7.1.10",
 		"wrangler": "^4.51.0"
+	},
+	"dependencies": {
+		"bits-ui": "^2.14.4",
+		"lucide-svelte": "^0.555.0",
+		"svelte-bricks": "^0.3.2"
 	}
 }

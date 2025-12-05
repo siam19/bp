@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Receipt | BANGLAPUNK</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Fonts -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800;900&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050505;
+            color: white;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* --- Blurred Section Utility --- */
+        .locked-section {
+            position: relative;
+            overflow: hidden;
+            user-select: none;
+        }
+        
+        /* The Blur Overlay */
+        .locked-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(20, 20, 20, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+            border: 1px solid #333;
+            border-radius: 0.75rem; /* Match card radius */
+        }
+
+        .locked-overlay:hover {
+            background: rgba(30, 30, 30, 0.8);
+            border-color: #555;
+        }
+
+        /* Content underneath - blurred slightly to aid the effect */
+        .locked-content {
+            filter: blur(4px);
+            opacity: 0.5;
+            pointer-events: none; /* Prevent interaction while locked */
+            transition: filter 0.3s ease, opacity 0.3s ease;
+        }
+        
+        /* Unlocked State */
+        .unlocked .locked-overlay {
+            display: none;
+        }
+        .unlocked .locked-content {
+            filter: none;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Status Dot Pulse */
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #3b82f6; /* Blue for Confirmed */
+            box-shadow: 0 0 10px #3b82f6;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+
+    </style>
+</head>
+<body class="bg-[#050505] selection:bg-red-900 selection:text-white">
+
+    <div id="app" class="max-w-md mx-auto relative min-h-screen pb-10 bg-[#050505] shadow-2xl shadow-black flex flex-col">
+
+        <!-- Component: Navbar (Static for this page, usually minimal) -->
+        <nav class="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-4 bg-gradient-to-b from-black/90 to-transparent max-w-md mx-auto w-full pointer-events-none">
+             <!-- Minimal Navbar for Receipt -->
+            <button class="text-white hover:text-gray-300 pointer-events-auto" onclick="window.location.href='/'">
+                <i data-lucide="chevron-left" class="w-6 h-6"></i>
+            </button>
+            <div class="font-extrabold text-xl tracking-tighter text-white">RECEIPT</div>
+            <div class="w-6"></div> <!-- Spacer -->
+        </nav>
+
+        <main class="pt-20 px-4 flex-1 space-y-6">
+            
+            <!-- Header & Logo Box -->
+            <div class="flex justify-between items-start">
+                <div>
+                    <h1 class="text-3xl font-black uppercase tracking-tight text-white mb-1">Receipt</h1>
+                    <p class="text-xs text-gray-500 font-mono">ID: <span class="text-gray-300">#BP-8392-XM</span></p>
+                </div>
+                <!-- Logo Placeholder Box -->
+                <div class="w-20 h-16 border border-gray-700 flex items-center justify-center text-[10px] text-gray-600 text-center leading-tight p-1">
+                    place<br>logo.svg<br>here
+                </div>
+            </div>
+
+            <!-- 1. Deliver To (LOCKED) -->
+            <div>
+                <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Deliver To</label>
+                <div class="locked-section rounded-xl bg-[#111] border border-gray-800 p-4 min-h-[100px]" onclick="openKeyModal()">
+                    
+                    <!-- Overlay -->
+                    <div class="locked-overlay">
+                        <i data-lucide="eye-off" class="w-6 h-6 text-gray-400 mb-2"></i>
+                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Enter KEY to view</span>
+                    </div>
+
+                    <!-- Hidden Content -->
+                    <div class="locked-content space-y-1">
+                        <h3 class="text-white font-bold text-lg">Ishmam Ahmed</h3>
+                        <p class="text-gray-400 text-sm">01711-XXXXXX</p>
+                        <p class="text-gray-500 text-xs">House 42, Road 7, Block C, Banani, Dhaka-1213</p>
+                        <p class="text-gray-600 text-[10px] mt-2">Backup: 01822-XXXXXX</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Status (OPEN) -->
+            <div>
+                <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Status</label>
+                <div class="bg-[#111] border border-gray-800 rounded-xl p-4">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="status-dot"></div>
+                        <h3 class="text-white font-black text-lg uppercase tracking-wide">Confirmed</h3>
+                    </div>
+                    <p class="text-gray-500 text-xs font-medium">Waiting for delivery pickup</p>
+                    
+                    <!-- Progress Bar Mock -->
+                    <div class="w-full bg-gray-800 h-1 mt-4 rounded-full overflow-hidden flex">
+                        <div class="w-1/3 bg-gray-600 h-full"></div> <!-- Pending -->
+                        <div class="w-1/3 bg-blue-600 h-full"></div> <!-- Confirmed -->
+                        <div class="w-1/3 bg-gray-800 h-full"></div> <!-- Delivered -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Parcel Tracking (LOCKED) -->
+            <div>
+                <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Parcel Tracking</label>
+                <div class="locked-section rounded-xl bg-[#111] border border-gray-800 p-4 min-h-[120px]" onclick="openKeyModal()">
+                    
+                    <!-- Overlay -->
+                    <div class="locked-overlay">
+                        <i data-lucide="eye-off" class="w-6 h-6 text-gray-400 mb-2"></i>
+                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Enter KEY to view</span>
+                    </div>
+
+                    <!-- Hidden Content -->
+                    <div class="locked-content flex flex-col items-center justify-center text-center h-full space-y-2">
+                         <!-- Mock Steadfast Response -->
+                        <div class="text-xs text-gray-400 font-mono">Tracking ID: STEAD-998877</div>
+                        <div class="bg-gray-800 px-3 py-1 rounded text-xs text-white">Status: IN_REVIEW</div>
+                        <p class="text-[10px] text-gray-500">Last updated: 10 mins ago via Steadfast API</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Items (OPEN - Partial Info) -->
+            <div>
+                <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Items</label>
+                <div class="space-y-3">
+                    <!-- Item 1 -->
+                    <div class="flex bg-[#111] border border-gray-800 rounded-xl p-3 gap-3">
+                        <div class="w-16 h-16 bg-gray-300 rounded-lg overflow-hidden shrink-0">
+                            <!-- Mock Image -->
+                            <img src="https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=80&w=200&auto=format&fit=crop" class="w-full h-full object-cover mix-blend-multiply opacity-80">
+                        </div>
+                        <div class="flex-1 flex flex-col justify-center">
+                            <h4 class="text-white font-bold text-sm leading-tight">Camio Shirt in Red</h4>
+                            <div class="flex items-center gap-3 mt-1 text-[10px] text-gray-400 font-mono">
+                                <span>Size: S</span>
+                                <span>Qty: 1</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                             <span class="text-white font-bold text-lg font-mono">1500<span class="text-[10px] text-gray-500 ml-0.5 align-top">BDT</span></span>
+                        </div>
+                    </div>
+
+                    <!-- Item 2 -->
+                    <div class="flex bg-[#111] border border-gray-800 rounded-xl p-3 gap-3">
+                        <div class="w-16 h-16 bg-gray-300 rounded-lg overflow-hidden shrink-0">
+                             <!-- Mock Image -->
+                            <img src="https://images.unsplash.com/photo-1542272454315-4c01d7abdf4a?q=80&w=200&auto=format&fit=crop" class="w-full h-full object-cover mix-blend-multiply opacity-80">
+                        </div>
+                        <div class="flex-1 flex flex-col justify-center">
+                            <h4 class="text-white font-bold text-sm leading-tight">Cargo Pants</h4>
+                            <div class="flex items-center gap-3 mt-1 text-[10px] text-gray-400 font-mono">
+                                <span>Size: 30</span>
+                                <span>Qty: 1</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                             <span class="text-white font-bold text-lg font-mono">800<span class="text-[10px] text-gray-500 ml-0.5 align-top">BDT</span></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Total -->
+                <div class="flex justify-between items-center mt-4 px-2">
+                    <span class="text-gray-500 text-xs font-bold uppercase">Total Paid</span>
+                    <span class="text-white font-black text-xl font-mono">2300<span class="text-xs text-gray-500 ml-1">BDT</span></span>
+                </div>
+            </div>
+
+            <!-- 5. Inquiry (LOCKED) - Standardized Structure -->
+            <div>
+                <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">For Any Query Message Us</label>
+                <div class="locked-section rounded-xl bg-[#111] border border-gray-800 p-4 min-h-[60px]" onclick="openKeyModal()">
+                    
+                    <!-- Standard Overlay -->
+                    <div class="locked-overlay">
+                        <i data-lucide="eye-off" class="w-6 h-6 text-gray-400 mb-2"></i>
+                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Enter KEY to view</span>
+                    </div>
+
+                    <!-- Content (Blurred by default CSS) -->
+                    <div class="locked-content">
+                         <div class="flex gap-2">
+                            <input type="text" placeholder="Write message to sales..." class="flex-1 bg-[#0a0a0a] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none">
+                            <button class="bg-white text-black font-bold px-4 py-2 rounded-lg text-sm hover:bg-gray-200">SEND</button>
+                         </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Security Key Modal -->
+    <div id="key-modal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-md" onclick="closeKeyModal()"></div>
+        <div class="relative bg-[#161616] border border-gray-700 w-full max-w-sm rounded-xl p-6 shadow-2xl animate-[fadeIn_0.2s_ease-out]">
+            
+            <div class="text-center mb-6">
+                <!-- Icon Removed -->
+                <h3 class="text-white font-bold text-lg">Confirm Identity</h3>
+                <p class="text-xs text-gray-500 mt-1">Verify your identity to view sensitive details.</p>
+            </div>
+
+            <form onsubmit="handleUnlock(event)" class="space-y-4">
+                
+                <!-- Phone Input -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Phone Number</label>
+                    <input type="tel" id="access-phone" class="w-full bg-[#0a0a0a] border border-gray-600 rounded-lg py-3 px-4 text-white text-sm focus:border-white focus:outline-none placeholder-gray-700 font-mono" placeholder="01711XXXXXX" required>
+                </div>
+
+                <!-- Key Input -->
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="block text-xs font-bold text-gray-500 uppercase">SMS Key</label>
+                        <button type="button" onclick="handleResend()" id="resend-btn" class="text-[10px] text-blue-400 hover:text-blue-300 font-bold uppercase cursor-pointer">Resend SMS</button>
+                    </div>
+                    <!-- Added indent-[0.5em] to fix centering issue caused by tracking -->
+                    <input type="password" id="access-key" maxlength="4" class="bg-[#0a0a0a] border border-gray-600 rounded-lg py-3 px-4 text-center text-white text-2xl font-mono tracking-[0.5em] indent-[0.5em] w-full focus:border-white focus:outline-none placeholder-gray-700" placeholder="••••" required>
+                </div>
+
+                <button type="submit" class="w-full bg-white text-black font-black text-lg py-3 rounded-lg hover:bg-gray-200 transition-colors uppercase tracking-wide mt-2">
+                    UNLOCK
+                </button>
+                
+                <!-- Feedback Messages -->
+                <div id="error-msg" class="hidden text-center text-xs text-red-500 font-bold mt-2">Invalid Phone or Key</div>
+                <div id="resend-msg" class="hidden text-center text-xs text-green-500 font-bold mt-2">New key sent to your number!</div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Logic -->
+    <script>
+        lucide.createIcons();
+
+        // --- State ---
+        let isUnlocked = false;
+        const VALID_KEY = "1234"; 
+        const VALID_PHONE_PREFIX = "01"; 
+
+        // --- Modal Logic ---
+        const modal = document.getElementById('key-modal');
+        const phoneInput = document.getElementById('access-phone');
+        const keyInput = document.getElementById('access-key');
+        const errorMsg = document.getElementById('error-msg');
+        const resendMsg = document.getElementById('resend-msg');
+
+        function openKeyModal() {
+            if (isUnlocked) return;
+            modal.classList.remove('hidden');
+            keyInput.value = '';
+            errorMsg.classList.add('hidden');
+            resendMsg.classList.add('hidden');
+            
+            if(!phoneInput.value) phoneInput.focus();
+            else keyInput.focus();
+        }
+
+        function closeKeyModal() {
+            modal.classList.add('hidden');
+        }
+
+        // --- Unlock Logic ---
+        async function handleUnlock(e) {
+            e.preventDefault();
+            const phone = phoneInput.value;
+            const key = keyInput.value;
+
+            errorMsg.classList.add('hidden');
+            resendMsg.classList.add('hidden');
+
+            // Mock Validation
+            if (phone.startsWith(VALID_PHONE_PREFIX) && phone.length >= 11 && key === VALID_KEY) {
+                modal.classList.add('hidden');
+                performUnlock();
+            } else {
+                errorMsg.classList.remove('hidden');
+                
+                if (key !== VALID_KEY) {
+                     keyInput.classList.add('border-red-500');
+                     setTimeout(() => keyInput.classList.remove('border-red-500'), 500);
+                }
+                if (!phone.startsWith(VALID_PHONE_PREFIX) || phone.length < 11) {
+                     phoneInput.classList.add('border-red-500');
+                     setTimeout(() => phoneInput.classList.remove('border-red-500'), 500);
+                }
+            }
+        }
+
+        async function handleResend() {
+            const phone = phoneInput.value;
+            const btn = document.getElementById('resend-btn');
+            
+            if (!phone || phone.length < 11) {
+                phoneInput.classList.add('border-red-500');
+                setTimeout(() => phoneInput.classList.remove('border-red-500'), 500);
+                return;
+            }
+
+            // Mock API Call
+            btn.innerText = "Sending...";
+            btn.classList.add('text-gray-500', 'cursor-not-allowed');
+            
+            await new Promise(r => setTimeout(r, 1500));
+            
+            btn.innerText = "Sent!";
+            resendMsg.classList.remove('hidden');
+            
+            setTimeout(() => {
+                btn.innerText = "Resend SMS";
+                btn.classList.remove('text-gray-500', 'cursor-not-allowed');
+                resendMsg.classList.add('hidden');
+            }, 3000);
+        }
+
+        function performUnlock() {
+            isUnlocked = true;
+            
+            // Apply standard unlock class
+            const lockedSections = document.querySelectorAll('.locked-section');
+            lockedSections.forEach(el => {
+                el.classList.add('unlocked');
+            });
+            console.log("Unlocked with Phone + Key verification.");
+        }
+
+    </script>
+</body>
+</html>

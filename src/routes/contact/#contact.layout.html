@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us | BANGLAPUNK</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Fonts -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800;900&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050505;
+            color: white;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* --- Tab Styling System --- */
+        
+        :root {
+            --card-bg: #161616;
+        }
+
+        /* Remove mobile tap highlight globally or on interactives */
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .tab-btn {
+            position: relative;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none; /* Disable text selection */
+            outline: none;     /* Disable focus outline (can replace with custom focus if needed) */
+        }
+
+        /* Active Tab Shape */
+        .tab-btn.active {
+            background-color: var(--card-bg);
+            color: white;
+            border-top-left-radius: 1rem;
+            border-top-right-radius: 1rem;
+            z-index: 10;
+        }
+
+        /* The "Scoop" Effect using Pseudo Elements */
+        /* Left Scoop (for Admin and Tech when active) */
+        .tab-btn.active.scoop-left::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: -20px;
+            width: 20px;
+            height: 20px;
+            background: transparent;
+            border-bottom-right-radius: 20px;
+            box-shadow: 4px 4px 0 4px var(--card-bg); 
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        /* Right Scoop (for Sales and Admin when active) */
+        .tab-btn.active.scoop-right::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: -20px;
+            width: 20px;
+            height: 20px;
+            background: transparent;
+            border-bottom-left-radius: 20px;
+            box-shadow: -4px 4px 0 4px var(--card-bg);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        /* Card Container Styling */
+        .contact-card {
+            background-color: var(--card-bg);
+            border-radius: 1rem;
+        }
+
+        /* Input Styling Override for "Inset" look */
+        .input-inset {
+            background-color: #0a0a0a; 
+            border-color: #262626;
+        }
+        .input-inset:focus {
+            border-color: #555;
+        }
+
+    </style>
+</head>
+<body class="bg-[#050505] selection:bg-red-900 selection:text-white">
+
+    <!-- App Container -->
+    <div id="app" class="max-w-md mx-auto relative min-h-screen pb-10 bg-[#050505] shadow-2xl shadow-black flex flex-col">
+
+        <!-- Component: Navbar -->
+        <nav class="component-navbar fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-4 bg-gradient-to-b from-black/90 to-transparent max-w-md mx-auto w-full pointer-events-none">
+            <button class="text-white hover:text-gray-300 pointer-events-auto">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+            <div class="font-extrabold text-xl tracking-tighter text-white">BANGLAPUNK</div>
+            <div class="relative cursor-pointer pointer-events-auto">
+                <i data-lucide="shopping-bag" class="w-6 h-6 text-white"></i>
+                <span class="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full font-bold">3</span>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="pt-24 px-4 flex-1 flex flex-col">
+            <h1 class="text-4xl font-black uppercase mb-8 font-sans tracking-tight text-white px-2">Contact</h1>
+
+            <!-- Tabs Navigation Row -->
+            <!-- 
+               Changes:
+               - Removed 'pl-2 pr-2' to allow tabs to span full width of the parent (aligning with card).
+               - Removed 'gap-1' to eliminate spacing between tabs for seamless folder look.
+               - Added select-none to buttons via CSS.
+            -->
+            <div class="flex items-end -mb-[1px] relative z-20 w-full">
+                <button onclick="switchTab('sales')" id="tab-sales" class="tab-btn active scoop-right flex-1 text-lg font-bold py-3 text-white">
+                    Sales
+                </button>
+                <button onclick="switchTab('admin')" id="tab-admin" class="tab-btn flex-1 text-lg font-bold py-3 text-gray-500 hover:text-gray-300">
+                    Admin
+                </button>
+                <button onclick="switchTab('tech')" id="tab-tech" class="tab-btn flex-1 text-lg font-bold py-3 text-gray-500 hover:text-gray-300">
+                    Tech
+                </button>
+            </div>
+
+            <!-- Content Card -->
+            <div id="form-card" class="contact-card p-6 flex-1 relative z-10 shadow-lg rounded-tl-none rounded-tr-2xl rounded-bl-2xl rounded-br-2xl transition-all">
+                
+                <!-- Contact Form -->
+                <form id="contact-form" class="space-y-5" onsubmit="handleSubmit(event)">
+                    
+                    <!-- Common Fields -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Name <span class="text-red-500">*</span></label>
+                        <input type="text" name="name" id="field-name" class="input-inset w-full border rounded-lg p-3 text-white focus:outline-none transition-colors placeholder-gray-700" placeholder="Your Name" required>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-5">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Phone <span id="phone-opt" class="hidden text-[10px] bg-gray-800 px-1 rounded ml-1 text-gray-400 normal-case">Optional</span></label>
+                            <input type="tel" name="phone" id="field-phone" class="input-inset w-full border rounded-lg p-3 text-white focus:outline-none transition-colors placeholder-gray-700" placeholder="+880...">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Email <span id="email-opt" class="hidden text-[10px] bg-gray-800 px-1 rounded ml-1 text-gray-400 normal-case">Optional</span></label>
+                            <input type="email" name="email" id="field-email" class="input-inset w-full border rounded-lg p-3 text-white focus:outline-none transition-colors placeholder-gray-700" placeholder="you@example.com">
+                        </div>
+                    </div>
+
+                    <!-- Subject Section (Dynamic) -->
+                    <div id="subject-container">
+                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Subject</label>
+                        
+                        <!-- Sales Subject (Select) -->
+                        <div id="subject-sales-wrapper">
+                            <div class="relative">
+                                <select id="field-subject-select" class="input-inset w-full border rounded-lg p-3 text-white appearance-none focus:outline-none transition-colors cursor-pointer" onchange="checkSubjectOther(this)">
+                                    <option value="" disabled selected>Select Concern</option>
+                                    <option value="return">I want to return an item</option>
+                                    <option value="cancel">I want to cancel an order</option>
+                                    <option value="shipping">Shipping Inquiry</option>
+                                    <option value="other">Other...</option>
+                                </select>
+                                <i data-lucide="chevron-down" class="absolute right-3 top-3.5 w-5 h-5 text-gray-500 pointer-events-none"></i>
+                            </div>
+                            <input type="text" id="field-subject-other" class="input-inset w-full border rounded-lg p-3 text-white focus:outline-none transition-colors mt-3 hidden animate-[fadeIn_0.2s_ease-out]" placeholder="Please specify your concern...">
+                        </div>
+
+                        <!-- Admin/Tech Subject (Input) -->
+                        <div id="subject-text-wrapper" class="hidden">
+                            <input type="text" id="field-subject-text" class="input-inset w-full border rounded-lg p-3 text-white focus:outline-none transition-colors placeholder-gray-700" placeholder="Brief subject">
+                        </div>
+                    </div>
+
+                    <!-- Message Body -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Message</label>
+                        <textarea name="message" id="field-message" maxlength="2000" rows="5" class="input-inset w-full border rounded-lg p-3 text-white focus:outline-none transition-colors resize-none placeholder-gray-700" placeholder="Write your message..." required></textarea>
+                        <div class="text-right text-[10px] text-gray-600 mt-1"><span id="char-count">0</span>/2000</div>
+                    </div>
+
+                    <!-- Attachments Section -->
+                    <div class="bg-[#0a0a0a] rounded-xl p-4 border border-[#262626]">
+                        
+                        <!-- Sales/Admin: Product Search -->
+                        <div id="attach-search-wrapper">
+                            <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Attach Product or Drop</label>
+                            <div class="relative">
+                                <i data-lucide="search" class="absolute left-3 top-3 w-4 h-4 text-gray-500"></i>
+                                <input type="text" id="product-search" class="w-full bg-[#161616] border border-gray-700 rounded-lg py-2.5 pl-9 pr-3 text-sm text-white placeholder-gray-600 focus:border-gray-500 focus:outline-none" placeholder="Search...">
+                            </div>
+                            
+                            <!-- Search Result Mock -->
+                            <div id="search-results" class="hidden mt-2 space-y-2">
+                                <div class="flex items-center justify-between bg-[#161616] p-2 rounded-lg border border-gray-800 hover:border-gray-600 cursor-pointer group" onclick="attachItem('Piuma Jacket')">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 bg-gray-800 rounded overflow-hidden">
+                                            <img src="https://images.unsplash.com/photo-1551488852-081bd4c9a66d?q=80&w=200&auto=format&fit=crop" class="w-full h-full object-cover opacity-70 group-hover:opacity-100">
+                                        </div>
+                                        <span class="text-sm text-gray-300 group-hover:text-white">Piuma Jacket</span>
+                                    </div>
+                                    <span class="text-xs text-blue-400 font-bold px-2">Select</span>
+                                </div>
+                            </div>
+
+                            <!-- Attached Item State -->
+                            <div id="attached-item" class="hidden mt-2 flex items-center justify-between bg-[#161616] p-2 rounded-lg border border-blue-900/50">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="paperclip" class="w-4 h-4 text-blue-400"></i>
+                                    <span class="text-sm text-white font-medium">Piuma Jacket</span>
+                                </div>
+                                <button type="button" onclick="removeAttachment()" class="text-gray-500 hover:text-red-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- Tech: Screenshot Upload -->
+                        <div id="attach-file-wrapper" class="hidden">
+                            <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Attach Screenshot</label>
+                            <div class="relative w-full border-2 border-dashed border-gray-700 hover:border-gray-500 rounded-lg bg-[#161616] transition-colors">
+                                <input type="file" id="file-upload" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="handleFileUpload(this)">
+                                <div class="flex flex-col items-center justify-center py-6 text-center" id="file-upload-placeholder">
+                                    <i data-lucide="image-plus" class="w-6 h-6 text-gray-500 mb-2"></i>
+                                    <p class="text-xs text-gray-400">Tap to upload image</p>
+                                </div>
+                                <div id="file-preview" class="hidden flex items-center justify-between p-3">
+                                    <span class="text-sm text-white truncate max-w-[200px]" id="file-name">screenshot.png</span>
+                                    <button type="button" onclick="resetFile()" class="z-10 text-gray-500 hover:text-red-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" id="submit-btn" class="w-full bg-white text-black font-black text-lg py-4 rounded-lg hover:bg-gray-200 transition-all uppercase tracking-wide mt-4 active:scale-[0.98]">
+                        Submit
+                    </button>
+
+                    <!-- Status Message -->
+                    <div id="status-msg" class="hidden text-center text-sm font-bold animate-[fadeIn_0.5s_ease-out]"></div>
+
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <!-- Logic -->
+    <script>
+        lucide.createIcons();
+
+        // --- State Management ---
+        let currentTab = 'sales';
+        const formData = {
+            name: '',
+            phone: '',
+            email: '',
+            subject: '',
+            message: '',
+            attachment: null
+        };
+
+        // --- Tab Switching Logic (Updated for Folder Styling) ---
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // 1. Reset Tabs
+            ['sales', 'admin', 'tech'].forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                // Remove all active-related classes
+                btn.classList.remove('active', 'scoop-left', 'scoop-right', 'text-white');
+                btn.classList.add('text-gray-500');
+            });
+
+            // 2. Set Active Tab & Scoops
+            const activeBtn = document.getElementById(`tab-${tab}`);
+            activeBtn.classList.add('active', 'text-white');
+            activeBtn.classList.remove('text-gray-500');
+
+            if (tab === 'sales') {
+                activeBtn.classList.add('scoop-right');
+                updateCardCorners('sales');
+            } else if (tab === 'admin') {
+                activeBtn.classList.add('scoop-left', 'scoop-right');
+                updateCardCorners('admin');
+            } else { // tech
+                activeBtn.classList.add('scoop-left');
+                updateCardCorners('tech');
+            }
+
+            // 3. Toggle Form Fields
+            const salesSubj = document.getElementById('subject-sales-wrapper');
+            const textSubj = document.getElementById('subject-text-wrapper');
+            const searchAttach = document.getElementById('attach-search-wrapper');
+            const fileAttach = document.getElementById('attach-file-wrapper');
+
+            if (tab === 'sales') {
+                salesSubj.classList.remove('hidden');
+                textSubj.classList.add('hidden');
+                searchAttach.classList.remove('hidden');
+                fileAttach.classList.add('hidden');
+            } else if (tab === 'admin') {
+                salesSubj.classList.add('hidden');
+                textSubj.classList.remove('hidden');
+                searchAttach.classList.remove('hidden');
+                fileAttach.classList.add('hidden');
+            } else { // Tech
+                salesSubj.classList.add('hidden');
+                textSubj.classList.remove('hidden');
+                searchAttach.classList.add('hidden');
+                fileAttach.classList.remove('hidden');
+            }
+        }
+
+        function updateCardCorners(tab) {
+            const card = document.getElementById('form-card');
+            // Reset top corners
+            card.classList.remove('rounded-tl-2xl', 'rounded-tr-2xl', 'rounded-tl-none', 'rounded-tr-none');
+
+            // Logic: The corner connected to the tab should be square (none), 
+            // the far corner should be rounded (2xl).
+            
+            if (tab === 'sales') {
+                // Tab is Left. Left corner joins tab. Right corner is far.
+                card.classList.add('rounded-tl-none', 'rounded-tr-2xl');
+            } else if (tab === 'admin') {
+                // Tab is Middle. Both corners are rounded? 
+                // Visually usually strictly flat if tab touches it. 
+                // But simplified: keep both top corners rounded to distinct the tab from card.
+                card.classList.add('rounded-tl-2xl', 'rounded-tr-2xl');
+            } else if (tab === 'tech') {
+                // Tab is Right. Left corner is far. Right corner joins tab.
+                card.classList.add('rounded-tl-2xl', 'rounded-tr-none');
+            }
+        }
+
+
+        // --- Conditional Fields ---
+        const phoneInput = document.getElementById('field-phone');
+        const emailInput = document.getElementById('field-email');
+        const phoneOpt = document.getElementById('phone-opt');
+        const emailOpt = document.getElementById('email-opt');
+
+        function checkContactReq() {
+            const hasPhone = phoneInput.value.length > 0;
+            const hasEmail = emailInput.value.length > 0;
+
+            if (hasPhone) {
+                emailInput.required = false;
+                emailOpt.classList.remove('hidden');
+            } else {
+                emailOpt.classList.add('hidden');
+            }
+
+            if (hasEmail) {
+                phoneInput.required = false;
+                phoneOpt.classList.remove('hidden');
+            } else {
+                phoneOpt.classList.add('hidden');
+            }
+            
+            if (!hasPhone && !hasEmail) emailInput.required = true;
+            saveDraft();
+        }
+
+        phoneInput.addEventListener('input', checkContactReq);
+        emailInput.addEventListener('input', checkContactReq);
+
+
+        // --- Subject & Attachments ---
+        function checkSubjectOther(select) {
+            const otherInput = document.getElementById('field-subject-other');
+            if (select.value === 'other') {
+                otherInput.classList.remove('hidden');
+                otherInput.required = true;
+            } else {
+                otherInput.classList.add('hidden');
+                otherInput.required = false;
+            }
+            saveDraft();
+        }
+
+        const searchInput = document.getElementById('product-search');
+        const results = document.getElementById('search-results');
+        const attachedItemDiv = document.getElementById('attached-item');
+
+        searchInput.addEventListener('focus', () => results.classList.remove('hidden'));
+        searchInput.addEventListener('input', () => results.classList.remove('hidden'));
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !results.contains(e.target)) {
+                results.classList.add('hidden');
+            }
+        });
+
+        function attachItem(name) {
+            results.classList.add('hidden');
+            searchInput.value = ''; 
+            searchInput.parentElement.classList.add('hidden'); 
+            attachedItemDiv.classList.remove('hidden');
+            formData.attachment = { type: 'product', name: name };
+            saveDraft();
+        }
+
+        function removeAttachment() {
+            attachedItemDiv.classList.add('hidden');
+            searchInput.parentElement.classList.remove('hidden');
+            formData.attachment = null;
+            saveDraft();
+        }
+
+        function handleFileUpload(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                document.getElementById('file-upload-placeholder').classList.add('hidden');
+                document.getElementById('file-preview').classList.remove('hidden');
+                document.getElementById('file-name').innerText = file.name;
+                formData.attachment = { type: 'file', name: file.name };
+                saveDraft();
+            }
+        }
+
+        function resetFile() {
+            document.getElementById('file-upload').value = '';
+            document.getElementById('file-upload-placeholder').classList.remove('hidden');
+            document.getElementById('file-preview').classList.add('hidden');
+            formData.attachment = null;
+            saveDraft();
+        }
+
+
+        // --- Storage & Submit ---
+        const LS_KEY = 'banglapunk_contact_draft';
+
+        function saveDraft() {
+            const draft = {
+                name: document.getElementById('field-name').value,
+                phone: phoneInput.value,
+                email: emailInput.value,
+                message: document.getElementById('field-message').value,
+                tab: currentTab
+            };
+            localStorage.setItem(LS_KEY, JSON.stringify(draft));
+        }
+
+        function restoreDraft() {
+            const saved = localStorage.getItem(LS_KEY);
+            if (saved) {
+                const draft = JSON.parse(saved);
+                document.getElementById('field-name').value = draft.name || '';
+                phoneInput.value = draft.phone || '';
+                emailInput.value = draft.email || '';
+                document.getElementById('field-message').value = draft.message || '';
+                document.getElementById('char-count').innerText = (draft.message || '').length;
+                
+                if (draft.tab) switchTab(draft.tab);
+                else switchTab('sales'); // default
+                
+                checkContactReq();
+            } else {
+                switchTab('sales'); // Init default
+            }
+        }
+
+        document.getElementById('field-name').addEventListener('input', saveDraft);
+        document.getElementById('field-message').addEventListener('input', function() {
+            document.getElementById('char-count').innerText = this.value.length;
+            saveDraft();
+        });
+
+        async function handleSubmit(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            const msg = document.getElementById('status-msg');
+
+            const lastSubmit = localStorage.getItem('last_submit_time');
+            const now = Date.now();
+            if (lastSubmit && (now - parseInt(lastSubmit)) < 60000) { 
+                msg.innerText = "Error: Please wait before sending another message.";
+                msg.className = "text-center text-sm font-bold text-red-500 mt-4";
+                msg.classList.remove('hidden');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "SENDING...";
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+            msg.classList.add('hidden');
+
+            await new Promise(r => setTimeout(r, 2000));
+
+            localStorage.setItem('last_submit_time', now.toString());
+            localStorage.removeItem(LS_KEY); 
+            
+            btn.classList.add('hidden');
+            msg.innerText = "Thank you!\nWe'll be in touch shortly.";
+            msg.className = "text-center text-lg font-bold text-green-400 mt-4 whitespace-pre-line";
+            msg.classList.remove('hidden');
+
+            setTimeout(() => {
+                window.location.href = '/'; 
+            }, 3000);
+        }
+
+        // Initialize
+        restoreDraft();
+
+    </script>
+</body>
+</html>

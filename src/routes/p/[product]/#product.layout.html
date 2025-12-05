@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIUMA JACKET | BANGLAPUNK</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Fonts -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800;900&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050505;
+            color: white;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Utility for the active size button state */
+        .size-btn.active {
+            background-color: white;
+            color: black;
+            border-color: white;
+        }
+    </style>
+</head>
+<body class="bg-[#050505] selection:bg-red-900 selection:text-white">
+
+    <!-- App Container -->
+    <div id="app" class="max-w-md mx-auto relative min-h-screen pb-20 bg-[#050505] shadow-2xl shadow-black">
+
+        <!-- Component: Navbar -->
+        <nav class="component-navbar fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-4 bg-gradient-to-b from-black/90 to-transparent max-w-md mx-auto w-full pointer-events-none">
+            <button class="text-white hover:text-gray-300 pointer-events-auto">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+            <div class="font-extrabold text-xl tracking-tighter text-white">BANGLAPUNK</div>
+            <div class="relative cursor-pointer pointer-events-auto">
+                <i data-lucide="shopping-bag" class="w-6 h-6 text-white"></i>
+                <span class="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full font-bold">3</span>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="pt-20 px-4">
+
+            <!-- Component: Product Gallery -->
+            <!-- Layout: Left large col, Right col with 2 stacked images -->
+            <section class="component-product-gallery grid grid-cols-2 gap-2 mb-6 h-80">
+                <!-- Slot 0: Main (Left) -->
+                <div class="relative w-full h-full bg-[#1a1a1a] rounded-xl overflow-hidden cursor-pointer group" onclick="openImageModal(0)">
+                    <img id="gallery-img-0" src="" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Product Front">
+                </div>
+                
+                <!-- Right Column -->
+                <div class="flex flex-col gap-2 h-full">
+                    <!-- Slot 1: Top Right -->
+                    <div class="relative w-full h-1/2 bg-[#1a1a1a] rounded-xl overflow-hidden cursor-pointer group" onclick="openImageModal(1)">
+                        <img id="gallery-img-1" src="" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Product Back">
+                    </div>
+                    <!-- Slot 2: Bottom Right -->
+                    <div class="relative w-full h-1/2 bg-[#1a1a1a] rounded-xl overflow-hidden cursor-pointer group" onclick="openImageModal(2)">
+                        <img id="gallery-img-2" src="" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Product Side">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Component: Product Info -->
+            <section class="mb-12">
+                <h1 class="text-3xl font-black uppercase leading-tight mb-1 font-sans">Piuma Jacket // Camo</h1>
+                <div class="text-2xl font-bold text-gray-300 font-mono mb-6">
+                    1650 <span class="text-sm text-gray-500">BDT</span>
+                </div>
+
+                <!-- Size Selector -->
+                <div class="flex justify-between items-end mb-2">
+                    <span class="text-sm font-bold uppercase">Size: <span id="selected-size-label" class="text-white">M</span></span>
+                    <button onclick="toggleSizeGuide(true)" class="text-xs text-gray-400 hover:text-white underline decoration-dotted">VIEW SIZE GUIDE</button>
+                </div>
+                
+                <div class="flex gap-2 mb-6">
+                    <button class="size-btn w-10 h-10 border border-gray-700 rounded-sm flex items-center justify-center font-bold text-sm hover:border-white transition-colors" onclick="selectSize(this, 'XS')">XS</button>
+                    <button class="size-btn w-10 h-10 border border-gray-700 rounded-sm flex items-center justify-center font-bold text-sm hover:border-white transition-colors" onclick="selectSize(this, 'S')">S</button>
+                    <button class="size-btn active w-10 h-10 border border-gray-700 rounded-sm flex items-center justify-center font-bold text-sm hover:border-white transition-colors" onclick="selectSize(this, 'M')">M</button>
+                    <button class="size-btn w-10 h-10 border border-gray-700 rounded-sm flex items-center justify-center font-bold text-sm hover:border-white transition-colors" onclick="selectSize(this, 'L')">L</button>
+                    <button class="size-btn w-10 h-10 border border-gray-700 rounded-sm flex items-center justify-center font-bold text-sm hover:border-white transition-colors" onclick="selectSize(this, 'XL')">XL</button>
+                    <button class="size-btn w-10 h-10 border border-gray-700 rounded-sm flex items-center justify-center font-bold text-sm hover:border-white transition-colors" onclick="selectSize(this, 'XXL')">XXL</button>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex gap-3 mb-8">
+                    <!-- Quantity Widget -->
+                    <div class="flex items-center border border-gray-700 rounded-lg h-12 px-2 bg-[#111]">
+                        <button onclick="updateQuantity(-1)" class="w-8 h-full flex items-center justify-center text-gray-400 hover:text-white">-</button>
+                        <span id="qty-display" class="w-8 text-center font-mono font-bold">1</span>
+                        <button onclick="updateQuantity(1)" class="w-8 h-full flex items-center justify-center text-gray-400 hover:text-white">+</button>
+                    </div>
+                    <!-- Add to Cart -->
+                    <button class="flex-1 bg-gray-200 text-black font-black text-lg rounded-lg hover:bg-white transition-colors uppercase tracking-wide">
+                        Add to Cart
+                    </button>
+                </div>
+
+                <!-- Description -->
+                <div class="text-gray-300 text-sm leading-relaxed space-y-4">
+                    <ul class="list-disc pl-5 space-y-1 text-gray-400">
+                        <li>100% cotton</li>
+                        <li>Fur-lined collar</li>
+                        <li>Printed fabric</li>
+                        <li>Foil coating effect</li>
+                        <li>Personalized hardware</li>
+                        <li>Fit: fast</li>
+                        <li>Made in Italy</li>
+                        <li>SKU: DFM09035TJ106NWASH</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Component: Suggested Pairings -->
+            <section class="component-suggested-pairings">
+                <div class="text-center mb-6">
+                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Picked Just For You</p>
+                    <h2 class="text-xl font-bold text-white">Suggested Pairings</h2>
+                </div>
+
+                <div id="masonry-grid" class="columns-2 gap-3 space-y-3 pb-8">
+                    <!-- Initial Content (Mocked Pinned Items) -->
+                    
+                    <!-- Pinned Item 1 -->
+                    <div class="component-product-card bg-white rounded-lg overflow-hidden break-inside-avoid relative group">
+                        <div class="aspect-[4/3] relative">
+                            <img src="https://images.unsplash.com/photo-1618354691373-d851c5c3a990?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover mix-blend-multiply" alt="Akash Bandi">
+                        </div>
+                        <div class="p-2.5">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-black font-bold text-sm leading-tight">Akash Bandi</h3>
+                                <i data-lucide="arrow-up-right" class="w-4 h-4 text-black"></i>
+                            </div>
+                            <div class="flex justify-between items-end">
+                                <div class="flex gap-1">
+                                    <span class="text-[8px] border border-black/20 text-black px-1 py-0.5 rounded font-mono">S</span>
+                                    <span class="text-[8px] border border-black/20 text-black px-1 py-0.5 rounded font-mono">L</span>
+                                </div>
+                                <div class="text-black font-bold text-sm">
+                                    1300<span class="text-[8px] ml-0.5 align-top">BDT</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pinned Media 1 -->
+                    <div class="component-media-card rounded-lg overflow-hidden break-inside-avoid relative group">
+                        <img src="https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover filter contrast-125" alt="Styling">
+                    </div>
+
+                     <!-- Pinned Item 2 -->
+                     <div class="component-product-card bg-[#e5e5e5] rounded-lg overflow-hidden break-inside-avoid relative group">
+                        <div class="aspect-[3/4] relative">
+                            <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover mix-blend-multiply" alt="Gautam">
+                        </div>
+                        <div class="p-2.5">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-black font-bold text-sm leading-tight">Cargo Heavy</h3>
+                                <i data-lucide="arrow-up-right" class="w-4 h-4 text-black"></i>
+                            </div>
+                            <div class="flex justify-between items-end">
+                                <div class="flex gap-1">
+                                    <span class="text-[8px] border border-black/20 text-black px-1 py-0.5 rounded font-mono">30</span>
+                                    <span class="text-[8px] border border-black/20 text-black px-1 py-0.5 rounded font-mono">32</span>
+                                </div>
+                                <div class="text-black font-bold text-sm">
+                                    2200<span class="text-[8px] ml-0.5 align-top">BDT</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="loading-indicator" class="text-center py-4 text-xs text-gray-500 font-mono hidden">
+                    LOADING MORE...
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals -->
+
+    <!-- Image Viewer Modal -->
+    <div id="image-modal" class="fixed inset-0 z-[60] hidden bg-black flex flex-col items-center justify-center">
+        <button onclick="closeImageModal()" class="absolute top-4 right-4 text-white p-2 hover:text-gray-300 z-10">
+            <i data-lucide="x" class="w-8 h-8"></i>
+        </button>
+        
+        <div class="relative w-full max-w-lg aspect-square">
+            <img id="modal-full-img" src="" class="w-full h-full object-contain" alt="Full View">
+            
+            <button onclick="navImage(-1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 p-2 rounded-full text-white hover:bg-black">
+                <i data-lucide="chevron-left" class="w-8 h-8"></i>
+            </button>
+            <button onclick="navImage(1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 p-2 rounded-full text-white hover:bg-black">
+                <i data-lucide="chevron-right" class="w-8 h-8"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Size Guide Modal -->
+    <div id="size-guide-modal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="toggleSizeGuide(false)"></div>
+        <div class="relative bg-white w-full max-w-sm rounded-xl p-2 overflow-hidden shadow-2xl">
+            <button onclick="toggleSizeGuide(false)" class="absolute top-2 right-2 text-black bg-white/50 rounded-full p-1 z-10">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div class="bg-gray-100 rounded-lg p-4">
+                <h3 class="text-black font-bold text-lg mb-2 text-center">Size Guide</h3>
+                <!-- Mock Size Chart Image -->
+                <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=600&auto=format&fit=crop" class="w-full h-auto rounded mix-blend-multiply" alt="Size Chart">
+            </div>
+        </div>
+    </div>
+
+    <!-- Logic -->
+    <script>
+        lucide.createIcons();
+
+        // --- Mock Data ---
+        const productImages = [
+            "https://images.unsplash.com/photo-1551488852-081bd4c9a66d?q=80&w=600&auto=format&fit=crop", // Front
+            "https://images.unsplash.com/photo-1542272454315-4c01d7abdf4a?q=80&w=600&auto=format&fit=crop", // Back
+            "https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80&w=600&auto=format&fit=crop"  // Side
+        ];
+        
+        // --- 1. Gallery Logic (Clockwise Rotation) ---
+        // Slots: 0 (Main Left), 1 (Top Right), 2 (Bottom Right)
+        // Rotation: Main -> TopRight -> BottomRight -> Main
+        // This corresponds to shifting the array indices assigned to the DOM slots.
+        
+        let galleryIndices = [0, 1, 2]; // Index of productImages for each slot
+        const imgElements = [
+            document.getElementById('gallery-img-0'),
+            document.getElementById('gallery-img-1'),
+            document.getElementById('gallery-img-2')
+        ];
+
+        function renderGallery() {
+            imgElements.forEach((el, slotIndex) => {
+                const imgIndex = galleryIndices[slotIndex];
+                el.src = productImages[imgIndex];
+                // Reset animation class for crossfade effect if desired, 
+                // but simple src swap works for the "switch places" description
+            });
+        }
+
+        function rotateGallery() {
+            // Clockwise movement:
+            // Slot 0 gets Content of Slot 2 (Previous Bottom)
+            // Slot 1 gets Content of Slot 0 (Previous Main)
+            // Slot 2 gets Content of Slot 1 (Previous Top)
+            // Or simpler: just rotate the array of indices to the right?
+            // [0, 1, 2] -> [2, 0, 1]
+            
+            const last = galleryIndices.pop();
+            galleryIndices.unshift(last);
+            renderGallery();
+        }
+
+        // Initialize and set interval
+        renderGallery();
+        setInterval(rotateGallery, 5000); // 5 seconds interval
+
+        // --- 2. Image Modal Logic ---
+        const modal = document.getElementById('image-modal');
+        const modalImg = document.getElementById('modal-full-img');
+        let currentModalIndex = 0;
+
+        function openImageModal(slotIndex) {
+            // Open the image currently displayed in that slot
+            currentModalIndex = galleryIndices[slotIndex];
+            modalImg.src = productImages[currentModalIndex];
+            modal.classList.remove('hidden');
+        }
+
+        function closeImageModal() {
+            modal.classList.add('hidden');
+        }
+
+        function navImage(dir) {
+            currentModalIndex = (currentModalIndex + dir + productImages.length) % productImages.length;
+            modalImg.src = productImages[currentModalIndex];
+        }
+
+        // --- 3. Product Interaction Logic ---
+        
+        // Size Selection
+        function selectSize(btn, size) {
+            // Reset active classes
+            document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+            // Set active
+            btn.classList.add('active');
+            // Update label
+            document.getElementById('selected-size-label').innerText = size;
+        }
+
+        // Quantity
+        let quantity = 1;
+        const qtyDisplay = document.getElementById('qty-display');
+        function updateQuantity(delta) {
+            if (quantity + delta > 0) {
+                quantity += delta;
+                qtyDisplay.innerText = quantity;
+            }
+        }
+
+        // Size Guide Modal
+        function toggleSizeGuide(show) {
+            const guide = document.getElementById('size-guide-modal');
+            if (show) guide.classList.remove('hidden');
+            else guide.classList.add('hidden');
+        }
+
+        // --- 4. Mock Infinite Scroll Logic ---
+        const grid = document.getElementById('masonry-grid');
+        const loader = document.getElementById('loading-indicator');
+        let isLoading = false;
+
+        window.addEventListener('scroll', () => {
+            if (isLoading) return;
+            
+            // Check if near bottom
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+                isLoading = true;
+                loader.classList.remove('hidden');
+                
+                // Mock Network Delay
+                setTimeout(() => {
+                    loadMoreItems();
+                    isLoading = false;
+                    loader.classList.add('hidden');
+                }, 1500);
+            }
+        });
+
+        function loadMoreItems() {
+            // Mock Template
+            const mockHTML = `
+                <div class="component-product-card bg-white rounded-lg overflow-hidden break-inside-avoid relative group animate-[fadeIn_0.5s_ease-out]">
+                    <div class="aspect-[4/5] relative">
+                        <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover mix-blend-multiply" alt="More Item">
+                    </div>
+                    <div class="p-2.5">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-black font-bold text-sm leading-tight">Vintage Wash</h3>
+                            <i data-lucide="arrow-up-right" class="w-4 h-4 text-black"></i>
+                        </div>
+                        <div class="flex justify-between items-end">
+                             <div class="flex gap-1">
+                                    <span class="text-[8px] border border-black/20 text-black px-1 py-0.5 rounded font-mono">S</span>
+                                    <span class="text-[8px] border border-black/20 text-black px-1 py-0.5 rounded font-mono">L</span>
+                                </div>
+                            <div class="text-black font-bold text-sm">950<span class="text-[8px] ml-0.5 align-top">BDT</span></div>
+                        </div>
+                    </div>
+                </div>
+                 <div class="component-media-card rounded-lg overflow-hidden break-inside-avoid relative group animate-[fadeIn_0.5s_ease-out]">
+                        <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover" alt="Media">
+                    </div>
+            `;
+            grid.insertAdjacentHTML('beforeend', mockHTML);
+            lucide.createIcons();
+        }
+
+    </script>
+</body>
+</html>
