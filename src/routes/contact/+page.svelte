@@ -3,6 +3,7 @@
 	import { fade } from 'svelte/transition';
 	import { onMount } from 'svelte';
 	import { Paperclip, X, Search, Upload } from 'lucide-svelte';
+	import { payloadClient } from '$lib/api/payload';
 
 	let activeTab = $state('sales');
 
@@ -100,18 +101,30 @@
 
 		isSubmitting = true;
 
-		// Simulate API
-		await new Promise((resolve) => setTimeout(resolve, 2000));
+		try {
+			await payloadClient.createContactRequest({
+				name: formData.name,
+				contact_info: `Phone: ${formData.phone}, Email: ${formData.email}`,
+				department: activeTab === 'sales' ? 'Sales' : activeTab === 'admin' ? 'Admin' : 'Tech',
+				subject: formData.subject === 'Other' ? formData.subjectOther : formData.subject,
+				message: formData.message
+				// Attachments not supported in public API yet
+			});
 
-		localStorage.setItem('last_submit_time', now.toString());
-		localStorage.removeItem(LS_KEY);
-		
-		isSubmitting = false;
-		submitStatus = 'success';
+			localStorage.setItem('last_submit_time', now.toString());
+			localStorage.removeItem(LS_KEY);
+			
+			isSubmitting = false;
+			submitStatus = 'success';
 
-		setTimeout(() => {
-			window.location.href = '/';
-		}, 3000);
+			setTimeout(() => {
+				window.location.href = '/';
+			}, 3000);
+		} catch (err) {
+			console.error(err);
+			alert('Failed to send message. Please try again.');
+			isSubmitting = false;
+		}
 	}
 </script>
 
@@ -249,7 +262,7 @@
 
 					<!-- Attachments -->
 					<div class="space-y-1">
-						<label class="text-xs font-bold uppercase text-gray-500">Attachment</label>
+						<div class="text-xs font-bold uppercase text-gray-500">Attachment</div>
 						
 						{#if formData.attachment}
 							<div class="flex items-center justify-between rounded-lg border border-gray-700 bg-gray-800 p-3">

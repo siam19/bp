@@ -2,10 +2,11 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { cart } from '$lib/stores/cart.svelte';
+	import { payloadClient } from '$lib/api/payload';
+	import type { CheckoutPayload, DeliveryWindow } from '$lib/types';
 	import { ChevronLeft, Loader2 } from 'lucide-svelte';
 
 	let isSubmitting = $state(false);
-	let orderId = $state('');
 	
 	// Form State
 	let formData = $state({
@@ -13,54 +14,77 @@
 		phone: '',
 		address: '',
 		notes: '',
-		timeframe: ''
+		timeframe: '' as DeliveryWindow | ''
 	});
 	
-	let paymentMethod = $state('cod');
-
-	onMount(() => {
-		// Generate Order ID
-		orderId = 'BP-' + Math.floor(Math.random() * 10000) + '-XM';
-		
-		// Mock Background Visit Creation
-		console.log("[TRACKING] Unique Visitor created in 'visits' collection.");
-		console.log("[TRACKING] Cart Items:", cart.items);
-	});
+	let paymentMethod = $state('COD');
 
 	async function handleCheckout(e: Event) {
 		e.preventDefault();
 		isSubmitting = true;
 
-		// Mock Backend Payload
-		const payload = {
-			orderId: orderId,
+        // Generate client_order_id
+        const clientOrderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+        
+        // Get visitor_id
+        let visitorId = localStorage.getItem('bp-visitor-id');
+        if (!visitorId) {
+            visitorId = crypto.randomUUID();
+            localStorage.setItem('bp-visitor-id', visitorId);
+            // Create visit record
+            try {
+                await payloadClient.createVisit({
+                    visitor_id: visitorId,
+                    cart_snapshot: { items: cart.items }
+                });
+            } catch (err) {
+                console.error('Failed to create visit record', err);
+            }
+        }
+
+		const payload: CheckoutPayload = {
+			client_order_id: clientOrderId,
 			customer: {
 				name: formData.name,
 				phone: formData.phone,
 				address: formData.address,
 				notes: formData.notes,
-				timeframe: formData.timeframe
+				delivery_timeframe: formData.timeframe as DeliveryWindow || undefined,
+                delivery_area: 'Inside Dhaka', // Default
+                email: '' // Optional
 			},
-			payment: paymentMethod,
-			items: cart.items,
-			timestamp: new Date().toISOString()
+			payment_method: paymentMethod === 'BKASH' ? 'BKASH' : 'COD',
+			items: cart.items.map(item => ({
+                variantId: item.variantId,
+                quantity: item.quantity,
+                price: item.price,
+                item_type: 'existing_product'
+            })),
+            visitor_id: visitorId
 		};
 
-		console.log("[BACKEND] Creating Order...", payload);
-		console.log("[TRACKING] User added to 'Customers' collection.");
-
-		// Mock Network Delay
-		await new Promise(r => setTimeout(r, 2000));
-
-		// Redirect Logic
-		const status = paymentMethod === 'cod' ? 'confirmed' : 'pending';
-		goto(`/receipt/${orderId}?status=${status}`);
+        try {
+            const response = await payloadClient.checkout(payload);
+            if (response.success) {
+                cart.clear();
+                // Redirect to receipt
+                const status = paymentMethod === 'BKASH' ? 'pending' : 'confirmed';
+                goto(`/receipt/${clientOrderId}?status=${status}`);
+            } else {
+                alert('Checkout failed: ' + (response.error || 'Unknown error'));
+            }
+        } catch (err: any) {
+            console.error(err);
+            alert('An error occurred during checkout: ' + (err.message || 'Unknown error'));
+        } finally {
+            isSubmitting = false;
+        }
 	}
 </script>
 
 <div class="mx-auto flex min-h-screen max-w-md flex-col bg-[#050505] pb-10 shadow-2xl shadow-black">
 	<!-- Navbar -->
-	<nav class="fixed left-0 right-0 top-0 z-40 mx-auto flex w-full max-w-md items-center justify-between bg-gradient-to-b from-black/90 to-transparent px-4 py-4 pointer-events-none">
+	<nav class="fixed left-0 right-0 top-0 z-40 mx-auto flex w-full max-w-md items-center justify-between bg-linear-to-b from-black/90 to-transparent px-4 py-4 pointer-events-none">
 		<button class="pointer-events-auto text-white hover:text-gray-300" onclick={() => history.back()}>
 			<ChevronLeft class="h-6 w-6" />
 		</button>
@@ -123,12 +147,12 @@
 					/>
 				</div>
 				<div>
-					<label class="mb-2 block text-xs font-bold uppercase text-gray-500">Preferred Timeframe <span class="ml-1 rounded bg-gray-800 px-1 text-[10px] font-normal normal-case text-gray-400">Optional</span></label>
+					<div class="mb-2 block text-xs font-bold uppercase text-gray-500">Preferred Timeframe <span class="ml-1 rounded bg-gray-800 px-1 text-[10px] font-normal normal-case text-gray-400">Optional</span></div>
 					<div class="space-y-2">
 						{#each [
-							{ value: 'morning', label: 'Morning', sub: '10AM - 1PM' },
-							{ value: 'afternoon', label: 'Afternoon', sub: '2PM - 6PM' },
-							{ value: 'evening', label: 'Evening', sub: '6PM - 9PM' }
+							{ value: 'Morning', label: 'Morning', sub: '10AM - 1PM' },
+							{ value: 'Afternoon', label: 'Afternoon', sub: '2PM - 6PM' },
+							{ value: 'Evening', label: 'Evening', sub: '6PM - 9PM' }
 						] as option}
 							<label class="group flex cursor-pointer items-center justify-between rounded-lg border border-[#262626] bg-[#0a0a0a] p-3 transition-all hover:border-gray-500"
 								class:bg-white={formData.timeframe === option.value}
@@ -157,11 +181,11 @@
 				<div class="flex gap-3">
 					<!-- COD Option -->
 					<label class="group flex-1 cursor-pointer">
-						<input type="radio" name="payment" value="cod" bind:group={paymentMethod} class="sr-only" />
+						<input type="radio" name="payment" value="COD" bind:group={paymentMethod} class="sr-only" />
 						<div class="input-inset flex h-24 flex-col items-center justify-center rounded-xl border border-[#262626] bg-[#0a0a0a] p-4 transition-all group-hover:border-gray-500"
-							class:bg-white={paymentMethod === 'cod'}
-							class:text-black={paymentMethod === 'cod'}
-							class:border-white={paymentMethod === 'cod'}
+							class:bg-white={paymentMethod === 'COD'}
+							class:text-black={paymentMethod === 'COD'}
+							class:border-white={paymentMethod === 'COD'}
 						>
 							<span class="text-lg font-black">COD</span>
 							<span class="mt-1 text-[10px] uppercase tracking-wide opacity-70">Cash on Delivery</span>
@@ -170,13 +194,13 @@
 					
 					<!-- bKash Option -->
 					<label class="group flex-1 cursor-pointer">
-						<input type="radio" name="payment" value="bkash" bind:group={paymentMethod} class="sr-only" />
+						<input type="radio" name="payment" value="BKASH" bind:group={paymentMethod} class="sr-only" />
 						<div class="input-inset flex h-24 flex-col items-center justify-center rounded-xl border border-[#262626] bg-[#0a0a0a] p-4 transition-all group-hover:border-gray-500"
-							class:bg-white={paymentMethod === 'bkash'}
-							class:text-black={paymentMethod === 'bkash'}
-							class:border-white={paymentMethod === 'bkash'}
+							class:bg-white={paymentMethod === 'BKASH'}
+							class:text-black={paymentMethod === 'BKASH'}
+							class:border-white={paymentMethod === 'BKASH'}
 						>
-							<span class="text-lg font-black text-pink-500" class:text-black={paymentMethod === 'bkash'}>bKash</span>
+							<span class="text-lg font-black text-pink-500" class:text-black={paymentMethod === 'BKASH'}>bKash</span>
 							<span class="mt-1 text-[10px] uppercase tracking-wide opacity-70">Send Money</span>
 						</div>
 					</label>

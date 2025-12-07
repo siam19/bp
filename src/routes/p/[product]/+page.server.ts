@@ -7,35 +7,23 @@ export const load: PageServerLoad = async (event) => {
 	const client = createServerPayloadClient(event);
 
 	try {
-		const products = await client.listProducts({
-			query: {
-				'where[slug][equals]': params.product,
-				depth: 2
-			}
-		});
+		const product = await client.getShopProduct(params.product);
 
-		if (products.docs.length === 0) {
+		if (!product) {
 			throw error(404, 'Product not found');
 		}
 
-		const product = products.docs[0];
-
 		// Fetch related media (tagged with this product)
-		const mediaCards = await client.listMediaCards({
-			query: {
-				'where[tagged_products][contains]': product.id,
-				depth: 1
-			}
-		});
+		const mediaCards = await client.getShopProductMediaCards(product.id);
 
 		return {
 			product,
 			relatedMedia: mediaCards.docs
 		};
 	} catch (err) {
-		// If it's already a 404 error, rethrow it
+		// If it's already a 404 error, convert to SvelteKit error
 		if (err && typeof err === 'object' && 'status' in err && err.status === 404) {
-			throw err;
+			throw error(404, 'Product not found');
 		}
 		handleApiError(err);
 	}

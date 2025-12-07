@@ -8,13 +8,23 @@ import type {
   Product,
   User,
   Variant,
-  VisitRecord
+  VisitRecord,
+  CheckoutPayload,
+  CheckoutResponse,
+  VerifyOrderPayload,
+  VerifyOrderResponse,
+  ReceiptResponse,
+  TrackingResponse,
+  InfoPage,
+  ResendKeyResponse,
+  ShopProduct,
+  ShopDrop,
+  ShopInfoPage,
+  ShopMediaCard
 } from '$lib/types';
-import { mockDrops, mockProducts, mockMediaCards } from './mock-data';
+import { PUBLIC_API_URL } from '$env/static/public';
 
-const DEFAULT_API_BASE = 'https://admin.banglapunk.com/api';
-const USE_MOCK_DATA = true;
-const envBase = (typeof import.meta !== 'undefined' && import.meta?.env?.VITE_PAYLOAD_API_BASE) ? import.meta.env.VITE_PAYLOAD_API_BASE : undefined;
+const DEFAULT_API_BASE = PUBLIC_API_URL;
 
 type FetchFn = typeof fetch;
 
@@ -129,7 +139,7 @@ const applyQuery = (url: URL, params?: QueryParams) => {
 };
 
 function resolveBaseUrl(override?: string) {
-  const base = override ?? envBase ?? DEFAULT_API_BASE;
+  const base = override ?? DEFAULT_API_BASE;
   return base.endsWith('/') ? base.slice(0, -1) : base;
 }
 
@@ -156,7 +166,9 @@ export const createPayloadClient = (config: PayloadClientConfig = {}) => {
   }
 
   const request = async <T>(path: string, cfg: InternalRequestConfig = {}) => {
-    const url = new URL(path.startsWith('/') ? path : `/${path}`, `${baseUrl}/`);
+    // Ensure path is relative to preserve baseUrl's path component (e.g. /api)
+    const relativePath = path.startsWith('/') ? path.slice(1) : path;
+    const url = new URL(relativePath, `${baseUrl}/`);
     applyQuery(url, cfg.query);
 
     const headers = new Headers(cfg.headers ?? {});
@@ -183,33 +195,6 @@ export const createPayloadClient = (config: PayloadClientConfig = {}) => {
   };
 
   const list = <T>(collection: string, options?: RequestOptions) => {
-    if (USE_MOCK_DATA) {
-      let data: any[] = [];
-      if (collection === 'drops') data = mockDrops;
-      if (collection === 'products') data = mockProducts;
-      if (collection === 'media-cards') data = mockMediaCards;
-
-      if (options?.query) {
-        const statusQuery = options.query['where[status][equals]'];
-        if (statusQuery) {
-          data = data.filter(item => item.status === statusQuery);
-        }
-      }
-
-      return Promise.resolve({
-        docs: data,
-        totalDocs: data.length,
-        limit: 10,
-        totalPages: 1,
-        page: 1,
-        pagingCounter: 1,
-        hasPrevPage: false,
-        hasNextPage: false,
-        prevPage: null,
-        nextPage: null
-      } as PaginatedResponse<T>);
-    }
-
     return request<PaginatedResponse<T>>(`/${collection}`, {
       query: options?.query,
       signal: options?.signal,
@@ -219,17 +204,6 @@ export const createPayloadClient = (config: PayloadClientConfig = {}) => {
   };
 
   const read = <T>(collection: string, id: string, options?: RequestOptions) => {
-    if (USE_MOCK_DATA) {
-      let item: any = null;
-      if (collection === 'drops') item = mockDrops.find(d => d.id === id || d.slug === id);
-      if (collection === 'products') item = mockProducts.find(p => p.id === id || p.slug === id);
-      
-      if (item) {
-        return Promise.resolve(item as T);
-      }
-      return Promise.reject(new PayloadRequestError(404, 'Not Found', null));
-    }
-
     return request<T>(`/${collection}/${id}`, {
       query: options?.query,
       signal: options?.signal,
@@ -265,6 +239,95 @@ export const createPayloadClient = (config: PayloadClientConfig = {}) => {
       create<NotifierPayload, NotifierSubscription>('notifiers', payload, options),
     createVisit: (payload: VisitPayload, options?: MutationOptions) =>
       create<VisitPayload, VisitRecord>('visits', payload, options),
+    updateVisit: (id: string, payload: Partial<VisitPayload>, options?: MutationOptions) =>
+      request<VisitRecord>(`/visits/${id}`, {
+        method: 'PATCH',
+        body: payload,
+        signal: options?.signal,
+        fetch: options?.fetch,
+        headers: options?.headers
+      }),
+
+    // Custom Endpoints
+    checkout: (payload: CheckoutPayload, options?: MutationOptions) =>
+      request<CheckoutResponse>('/checkout', {
+        method: 'POST',
+        body: payload,
+        signal: options?.signal,
+        fetch: options?.fetch,
+        headers: options?.headers
+      }),
+    getReceipt: (orderId: string, auth?: { phone: string; pin: string }, options?: RequestOptions) => {
+      const headers: HeadersInit = options?.headers ?? {};
+      if (auth) {
+        (headers as Record<string, string>)['x-auth-phone'] = auth.phone;
+        (headers as Record<string, string>)['x-auth-pin'] = auth.pin;
+      }
+      return request<ReceiptResponse>('/receipt', {
+        query: { ...options?.query, order_id: orderId },
+        signal: options?.signal,
+        fetch: options?.fetch,
+        headers
+      });
+    },
+    verifyOrder: (orderId: string, payload: VerifyOrderPayload, options?: MutationOptions) =>
+      request<VerifyOrderResponse>(`/orders/${orderId}/verify`, {
+        method: 'POST',
+        body: payload,
+        signal: options?.signal,
+        fetch: options?.fetch,
+        headers: options?.headers
+      }),
+    getTracking: (orderId: string, options?: RequestOptions) =>
+      request<TrackingResponse>(`/orders/${orderId}/tracking`, {
+        signal: options?.signal,
+        fetch: options?.fetch,
+        headers: options?.headers
+      }),
+    getInfoPage: (options?: RequestOptions) =>
+      request<InfoPage>('/globals/info-page', {
+        signal: options?.signal,
+        fetch: options?.fetch,
+        headers: options?.headers
+      }),
+    recordVisit: (payload: { visitor_id: string; cart_snapshot?: any }, options?: MutationOptions) =>
+      request<void>('/visits', {
+        method: 'POST',
+        body: payload,
+        signal: options?.signal,
+        fetch: options?.fetch,
+        headers: options?.headers
+      }),
+    resendKey: (options?: RequestOptions) =>
+      request<ResendKeyResponse>('/resend-key', {
+        signal: options?.signal,
+        fetch: options?.fetch,
+        headers: options?.headers
+      }),
+
+    // Shop API (v2.1)
+    getShopProducts: (options?: RequestOptions) => list<ShopProduct>('shop/products', options),
+    getShopProduct: (slug: string, options?: RequestOptions) => request<ShopProduct>(`/shop/products/${slug}`, {
+      query: options?.query,
+      signal: options?.signal,
+      fetch: options?.fetch,
+      headers: options?.headers
+    }),
+    getShopDrops: (options?: RequestOptions) => list<ShopDrop>('shop/drops', options),
+    getShopDrop: (slug: string, options?: RequestOptions) => request<ShopDrop>(`/shop/drops/${slug}`, {
+      query: options?.query,
+      signal: options?.signal,
+      fetch: options?.fetch,
+      headers: options?.headers
+    }),
+    getShopInfoPage: (options?: RequestOptions) => request<ShopInfoPage>('/shop/info', {
+      query: options?.query,
+      signal: options?.signal,
+      fetch: options?.fetch,
+      headers: options?.headers
+    }),
+    getShopMediaCards: (options?: RequestOptions) => list<ShopMediaCard>('shop/media-cards', options),
+    getShopProductMediaCards: (productId: string, options?: RequestOptions) => list<ShopMediaCard>(`shop/media-cards/${productId}`, options),
     
     // Auth
     login: (credentials: { email: string; password: string }, options?: MutationOptions) =>

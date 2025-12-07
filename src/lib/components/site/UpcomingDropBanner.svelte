@@ -1,10 +1,11 @@
 <script lang="ts">
-	import type { Drop } from '$lib/types';
+	import type { ShopDrop } from '$lib/types';
+	import { resolveShopImage } from '$lib/utils/media';
 	import Countdown from './Countdown.svelte';
 
-	let { drop } = $props<{ drop: Drop }>();
+	let { drop } = $props<{ drop: ShopDrop }>();
 
-	let releaseDate = $derived(new Date(drop.release_date));
+	let releaseDate = $derived(new Date(drop.release_date || ''));
 </script>
 
 <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-neutral-900 p-8 text-center">
@@ -12,7 +13,7 @@
 	{#if drop.assets?.banners?.[0]}
 		<div class="absolute inset-0 opacity-20">
 			<img
-				src={drop.assets.banners[0].url}
+				src={resolveShopImage(drop.assets.banners[0])}
 				alt=""
 				class="h-full w-full object-cover blur-sm grayscale"
 			/>

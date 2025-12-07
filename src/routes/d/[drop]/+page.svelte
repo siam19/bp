@@ -7,8 +7,9 @@
 	import MasonryGrid from '$lib/components/site/MasonryGrid.svelte';
 	import ProductCard from '$lib/components/site/ProductCard.svelte';
 	import MediaCard from '$lib/components/site/MediaCard.svelte';
-	import type { Drop, Product, MediaCard as MediaCardType } from '$lib/types';
+	import type { ShopProduct, ShopDrop, MediaCard as MediaCardType, ShopMediaCard } from '$lib/types';
 	import type { MasonryItem } from '$lib/types';
+	import { getMediaUrl } from '$lib/utils/media';
 
 	let { data } = $props();
 
@@ -35,35 +36,23 @@
 
 	// Masonry Items Transform
 	function buildMasonryItems(
-		products: (Product | string)[] | undefined,
-		mediaCards: MediaCardType[]
+		products: ShopProduct[] | undefined,
+		mediaCards: ShopMediaCard[]
 	): MasonryItem[] {
 		const productItems: MasonryItem[] = (products ?? [])
-			.filter((p): p is Product => typeof p !== 'string')
 			.map((p) => ({
 				id: `p-${p.id}`,
 				type: 'product' as const,
-				product: {
-					productId: p.slug ?? p.id,
-					productName: p.name,
-					productImages: [p.images.front?.url ?? p.images.front?.sizes?.card?.url].filter(
-						(url): url is string => !!url
-					),
-					price: p.price,
-					availableSizes:
-						p.variants?.docs?.filter((v) => v.stock_count > 0).map((v) => v.size) ?? []
-				}
+				product: p
 			}));
 
 		const mediaItems: MasonryItem[] = mediaCards.map((m) => ({
 			id: `m-${m.id}`,
 			type: 'media' as const,
 			media: {
-				mediaURL: typeof m.media === 'string' ? m.media : m.media?.url ?? '',
-				title: m.name ?? '',
-				taggedProducts: (m.tagged_products ?? []).map((p) =>
-					typeof p === 'string' ? p : p.slug ?? p.id
-				)
+				mediaURL: getMediaUrl(m.filename),
+				title: '',
+				taggedProducts: m.tagged_products.map((p) => p.id)
 			}
 		}));
 

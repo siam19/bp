@@ -1,25 +1,19 @@
-import { payloadClient } from '$lib/api/payload';
+import { createServerPayloadClient } from '$lib/server/api';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import type { Drop, MediaCard } from '$lib/types';
+import type { Drop, MediaCard, ShopMediaCard } from '$lib/types';
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async (event) => {
+	const { params } = event;
 	const { drop: slug } = params;
+	const client = createServerPayloadClient(event);
 
 	// 1. Fetch Drop
-	const drops = await payloadClient.listDrops({
-		query: {
-			'where[slug][equals]': slug,
-			depth: 2, // Need products and their images
-			limit: 1
-		}
-	});
+	const drop = await client.getShopDrop(slug);
 
-	if (!drops.docs.length) {
+	if (!drop) {
 		throw error(404, 'Drop not found');
 	}
-
-	const drop = drops.docs[0];
 
 	if (drop.status === 'DRAFT') {
 		throw error(404, 'Drop not found');
@@ -28,16 +22,15 @@ export const load: PageServerLoad = async ({ params }) => {
 	// 2. Fetch Related Media
 	// Get all product IDs in this drop
 	const productIds = (drop.products || [])
-		.map((p) => (typeof p === 'string' ? p : p.id))
+		.map((p) => p.id)
 		.filter(Boolean);
 
-	let relatedMedia: MediaCard[] = [];
+	let relatedMedia: ShopMediaCard[] = [];
 
 	if (productIds.length > 0) {
-		const mediaResponse = await payloadClient.listMediaCards({
+		const mediaResponse = await client.getShopMediaCards({
 			query: {
 				'where[tagged_products][in]': productIds.join(','),
-				depth: 1,
 				limit: 20
 			}
 		});

@@ -2,13 +2,18 @@
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { fade, fly } from 'svelte/transition';
-	import { ChevronLeft, EyeOff, Copy, AlertTriangle } from 'lucide-svelte';
+	import { ChevronLeft, EyeOff, Copy, AlertTriangle, Loader2 } from 'lucide-svelte';
+    import { payloadClient } from '$lib/api/payload';
+    import type { Order, ReceiptResponse, MediaAsset, Product, Variant } from '$lib/types';
 
 	// --- State ---
-	let orderId = $state($page.params.orderId);
+	let orderId = $state($page.params.orderId ?? '');
 	let status = $state($page.url.searchParams.get('status') || 'confirmed'); // 'pending' | 'confirmed'
 	let isUnlocked = $state(false);
 	let showModal = $state(false);
+    let order = $state<Order | null>(null);
+    let loading = $state(true);
+    let error = $state('');
 	
 	// Modal Form State
 	let phone = $state('');
@@ -17,38 +22,18 @@
 	let resendMsg = $state('');
 	let isResending = $state(false);
 
-	// Mock Order Data
-	const order = {
-		id: orderId,
-		total: 2300,
-		items: [
-			{
-				name: 'Camio Shirt in Red',
-				size: 'S',
-				qty: 1,
-				price: 1500,
-				image: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=80&w=200&auto=format&fit=crop'
-			},
-			{
-				name: 'Cargo Pants',
-				size: '30',
-				qty: 1,
-				price: 800,
-				image: 'https://images.unsplash.com/photo-1542272454315-4c01d7abdf4a?q=80&w=200&auto=format&fit=crop'
-			}
-		],
-		receiver: {
-			name: 'Ishmam Ahmed',
-			phone: '01711-XXXXXX',
-			address: 'House 42, Road 7, Block C, Banani, Dhaka-1213',
-			backup: '01822-XXXXXX'
-		},
-		tracking: {
-			id: 'STEAD-998877',
-			status: 'IN_REVIEW',
-			updated: '10 mins ago'
-		}
-	};
+    onMount(async () => {
+        try {
+            const res = await payloadClient.getReceipt(orderId);
+            order = res.order;
+            isUnlocked = res.authorized;
+        } catch (err) {
+            console.error(err);
+            error = 'Failed to load order';
+        } finally {
+            loading = false;
+        }
+    });
 
 	// --- Actions ---
 	function copyToClipboard(text: string) {
@@ -72,13 +57,21 @@
 		e.preventDefault();
 		errorMsg = '';
 		
-		// Mock Validation
-		if (phone.length >= 11 && key === '1234') {
-			isUnlocked = true;
-			showModal = false;
-		} else {
-			errorMsg = 'Invalid Phone or Key';
-		}
+		try {
+            const res = await payloadClient.verifyOrder(orderId, { phone, key });
+            if (res.verified) {
+                // Re-fetch full order with auth headers
+                const authRes = await payloadClient.getReceipt(orderId, { phone, pin: key });
+                order = authRes.order;
+                isUnlocked = authRes.authorized;
+                showModal = false;
+            } else {
+                errorMsg = 'Invalid Credentials';
+            }
+        } catch (err) {
+            console.error(err);
+            errorMsg = 'Verification failed';
+        }
 	}
 
 	async function handleResend() {
@@ -88,20 +81,45 @@
 		}
 		
 		isResending = true;
-		await new Promise(r => setTimeout(r, 1500));
-		isResending = false;
-		resendMsg = 'New key sent to your number!';
+        try {
+            // Placeholder for resend logic
+            await new Promise(r => setTimeout(r, 1500));
+            resendMsg = 'Request sent';
+        } catch (e) {
+            console.error(e);
+        } finally {
+            isResending = false;
+        }
 		
 		setTimeout(() => {
 			resendMsg = '';
 		}, 3000);
 	}
+
+	import { getMediaUrl } from '$lib/utils/media';
+
+    // Helper to get image URL safely
+    function getItemImage(item: any): string {
+        const product = item.product as Product;
+        if (product && typeof product !== 'string' && product.images?.front) {
+            const media = product.images.front as MediaAsset;
+            if (typeof media !== 'string') {
+                return getMediaUrl(media.filename || '') || media.url || '';
+            }
+        }
+        return '';
+    }
+
+    function getItemSize(item: any): string {
+        const variant = item.variant as Variant;
+        return (variant && typeof variant !== 'string') ? variant.size : '';
+    }
 </script>
 
 <div class="mx-auto flex min-h-screen max-w-md flex-col pb-10 shadow-2xl shadow-black">
 	
 	<!-- Navbar -->
-	<nav class="fixed left-0 right-0 top-0 z-40 mx-auto flex w-full max-w-md items-center justify-between bg-gradient-to-b from-black/90 to-transparent px-4 py-4 pointer-events-none">
+	<nav class="fixed left-0 right-0 top-0 z-40 mx-auto flex w-full max-w-md items-center justify-between bg-linear-to-b from-black/90 to-transparent px-4 py-4 pointer-events-none">
 		<button class="pointer-events-auto text-white hover:text-gray-300" onclick={() => window.location.href='/'}>
 			<ChevronLeft class="h-6 w-6" />
 		</button>
@@ -110,6 +128,16 @@
 	</nav>
 
 	<main class="flex flex-1 flex-col space-y-6 px-4 pt-20">
+
+        {#if loading}
+            <div class="flex h-64 items-center justify-center">
+                <Loader2 class="h-8 w-8 animate-spin text-white" />
+            </div>
+        {:else if error || !order}
+            <div class="flex h-64 items-center justify-center text-red-500">
+                {error || 'Order not found'}
+            </div>
+        {:else}
 
 		{#if status === 'pending'}
 			<!-- PENDING PAYMENT VIEW (bKash Guide) -->
@@ -184,7 +212,7 @@
 
 				<!-- 1. Deliver To (LOCKED) -->
 				<div class="mb-6">
-					<label class="mb-2 block text-xs font-bold uppercase text-gray-500">Deliver To</label>
+					<div class="mb-2 block text-xs font-bold uppercase text-gray-500">Deliver To</div>
 					<!-- svelte-ignore a11y_click_events_have_key_events -->
 					<!-- svelte-ignore a11y_no_static_element_interactions -->
 					<div class="relative min-h-[100px] overflow-hidden rounded-xl border border-gray-800 bg-[#111]" onclick={openKeyModal}>
@@ -196,21 +224,23 @@
 						{/if}
 						
 						<div class="space-y-1 p-4 transition-all duration-300" class:blur-sm={!isUnlocked} class:opacity-50={!isUnlocked}>
-							<h3 class="text-lg font-bold text-white">{order.receiver.name}</h3>
-							<p class="text-sm text-gray-400">{order.receiver.phone}</p>
-							<p class="text-xs text-gray-500">{order.receiver.address}</p>
-							<p class="mt-2 text-[10px] text-gray-600">Backup: {order.receiver.backup}</p>
+							<h3 class="text-lg font-bold text-white">{order?.customer_info.name}</h3>
+							<p class="text-sm text-gray-400">{order?.customer_info.phone}</p>
+							<p class="text-xs text-gray-500">{order?.customer_info.address}</p>
+                            {#if order?.customer_info.notes}
+							    <p class="mt-2 text-[10px] text-gray-600">Notes: {order.customer_info.notes}</p>
+                            {/if}
 						</div>
 					</div>
 				</div>
 
 				<!-- 2. Status (OPEN) -->
 				<div class="mb-6">
-					<label class="mb-2 block text-xs font-bold uppercase text-gray-500">Status</label>
+					<div class="mb-2 block text-xs font-bold uppercase text-gray-500">Status</div>
 					<div class="rounded-xl border border-gray-800 bg-[#111] p-4">
 						<div class="mb-2 flex items-center gap-3">
 							<div class="h-2.5 w-2.5 animate-pulse rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.7)]"></div>
-							<h3 class="text-lg font-black uppercase tracking-wide text-white">Confirmed</h3>
+							<h3 class="text-lg font-black uppercase tracking-wide text-white">{order?.status || 'Confirmed'}</h3>
 						</div>
 						<p class="text-xs font-medium text-gray-500">Waiting for delivery pickup</p>
 						
@@ -224,7 +254,7 @@
 
 				<!-- 3. Parcel Tracking (LOCKED) -->
 				<div class="mb-6">
-					<label class="mb-2 block text-xs font-bold uppercase text-gray-500">Parcel Tracking</label>
+					<div class="mb-2 block text-xs font-bold uppercase text-gray-500">Parcel Tracking</div>
 					<!-- svelte-ignore a11y_click_events_have_key_events -->
 					<!-- svelte-ignore a11y_no_static_element_interactions -->
 					<div class="relative min-h-[120px] overflow-hidden rounded-xl border border-gray-800 bg-[#111]" onclick={openKeyModal}>
@@ -236,27 +266,27 @@
 						{/if}
 
 						<div class="flex h-full flex-col items-center justify-center space-y-2 p-4 text-center transition-all duration-300" class:blur-sm={!isUnlocked} class:opacity-50={!isUnlocked}>
-							<div class="font-mono text-xs text-gray-400">Tracking ID: {order.tracking.id}</div>
-							<div class="rounded bg-gray-800 px-3 py-1 text-xs text-white">Status: {order.tracking.status}</div>
-							<p class="text-[10px] text-gray-500">Last updated: {order.tracking.updated} via Steadfast API</p>
+							<div class="font-mono text-xs text-gray-400">Tracking ID: {order?.tracking?.tracking_code || 'N/A'}</div>
+							<div class="rounded bg-gray-800 px-3 py-1 text-xs text-white">Status: {order?.tracking?.current_status || 'Pending'}</div>
+							<p class="text-[10px] text-gray-500">Last updated: {new Date(order?.updatedAt || Date.now()).toLocaleTimeString()}</p>
 						</div>
 					</div>
 				</div>
 
 				<!-- 4. Items (OPEN) -->
 				<div class="mb-6">
-					<label class="mb-2 block text-xs font-bold uppercase text-gray-500">Items</label>
+					<div class="mb-2 block text-xs font-bold uppercase text-gray-500">Items</div>
 					<div class="space-y-3">
-						{#each order.items as item}
+						{#each order?.items || [] as item}
 							<div class="flex gap-3 rounded-xl border border-gray-800 bg-[#111] p-3">
 								<div class="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-gray-300">
-									<img src={item.image} alt={item.name} class="h-full w-full object-cover opacity-80 mix-blend-multiply" />
+									<img src={getItemImage(item)} alt={item.name || 'Product'} class="h-full w-full object-cover opacity-80 mix-blend-multiply" />
 								</div>
 								<div class="flex flex-1 flex-col justify-center">
-									<h4 class="text-sm font-bold leading-tight text-white">{item.name}</h4>
+									<h4 class="text-sm font-bold leading-tight text-white">{item.name || (typeof item.product !== 'string' ? item.product?.name : 'Product')}</h4>
 									<div class="mt-1 flex items-center gap-3 font-mono text-[10px] text-gray-400">
-										<span>Size: {item.size}</span>
-										<span>Qty: {item.qty}</span>
+										<span>Size: {getItemSize(item)}</span>
+										<span>Qty: {item.quantity}</span>
 									</div>
 								</div>
 								<div class="flex items-center">
@@ -268,13 +298,13 @@
 					
 					<div class="mt-4 flex items-center justify-between px-2">
 						<span class="text-xs font-bold uppercase text-gray-500">Total Paid</span>
-						<span class="font-mono text-xl font-black text-white">{order.total}<span class="ml-1 text-xs text-gray-500">BDT</span></span>
+						<span class="font-mono text-xl font-black text-white">{order?.total_amount}<span class="ml-1 text-xs text-gray-500">BDT</span></span>
 					</div>
 				</div>
 
 				<!-- 5. Inquiry (LOCKED) -->
 				<div>
-					<label class="mb-2 block text-xs font-bold uppercase text-gray-500">For Any Query Message Us</label>
+					<div class="mb-2 block text-xs font-bold uppercase text-gray-500">For Any Query Message Us</div>
 					<!-- svelte-ignore a11y_click_events_have_key_events -->
 					<!-- svelte-ignore a11y_no_static_element_interactions -->
 					<div class="relative min-h-[60px] overflow-hidden rounded-xl border border-gray-800 bg-[#111]" onclick={openKeyModal}>
@@ -295,6 +325,7 @@
 				</div>
 			</div>
 		{/if}
+        {/if}
 
 	</main>
 </div>

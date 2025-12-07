@@ -5,10 +5,24 @@
 	import MasonryGrid from '$lib/components/site/MasonryGrid.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import type { PageData } from './$types';
-	import type { MediaAsset, Variant } from '$lib/types';
+	import type { ShopProduct, ShopImage, MasonryItem, MediaCard as MediaCardType, ShopMediaCard } from '$lib/types';
+	import { resolveShopImage, getMediaUrl } from '$lib/utils/media';
 
 	let { data } = $props<{ data: PageData }>();
-	let product = $derived(data.product);
+	let product = $derived(data.product as ShopProduct);
+
+	// Transform related media to MasonryItems
+	let relatedMediaItems = $derived(
+		(data.relatedMedia as ShopMediaCard[]).map((m): MasonryItem => ({
+			id: m.id,
+			type: 'media',
+			media: {
+				mediaURL: getMediaUrl(m.filename),
+				title: '',
+				taggedProducts: m.tagged_products.map((p) => p.id)
+			}
+		}))
+	);
 
 	// State
 	let selectedSize = $state<string | null>(null);
@@ -17,38 +31,36 @@
 
 	// Images
 	let images = $derived.by(() => {
-		const imgs: (string | MediaAsset)[] = [];
+		const imgs: ShopImage[] = [];
 		if (product.images.front) imgs.push(product.images.front);
 		if (product.images.back) imgs.push(product.images.back);
 		if (product.images.profile) imgs.push(product.images.profile);
 		return imgs;
 	});
 
-	function getImageUrl(image: string | MediaAsset): string {
-		if (typeof image === 'string') return image;
-		return image.url || '';
+	function getImageUrl(image: ShopImage): string {
+		return resolveShopImage(image);
 	}
 
 	// Sizes
 	let sizes = $derived.by(() => {
-		if (!product.variants?.docs) return [];
-		return product.variants.docs
-			.map((v: string | Variant) => {
-				if (typeof v === 'string') return null;
+		if (!product.variants) return [];
+		return product.variants
+			.map((v) => {
 				return {
-					id: v.id,
+					id: v.id || '',
 					size: v.size,
 					available: v.stock_count > 0,
 					stock: v.stock_count
 				};
 			})
-			.filter((v: { id: string; size: string; available: boolean; stock: number } | null) => v !== null);
+			.filter((v) => v.id !== '');
 	});
 
 	function addToCart() {
 		if (!selectedSize) return;
 
-		const variant = sizes.find((s: { size: string; id: string } | null) => s?.size === selectedSize);
+		const variant = sizes.find((s) => s.size === selectedSize);
 		if (!variant) return;
 
 		cart.addItem({
@@ -184,10 +196,10 @@
 	</div>
 
 	<!-- Related Media -->
-	{#if data.relatedMedia.length > 0}
+	{#if relatedMediaItems.length > 0}
 		<div class="mt-24">
 			<h2 class="text-3xl font-bold uppercase text-white mb-8 font-heading">Styled With</h2>
-			<MasonryGrid items={data.relatedMedia} />
+			<MasonryGrid items={relatedMediaItems} />
 		</div>
 	{/if}
 </div>

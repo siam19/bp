@@ -1,20 +1,20 @@
-import { payloadClient } from '$lib/api/payload';
+import { createServerPayloadClient } from '$lib/server/api';
 import type { PageServerLoad } from './$types';
-import type { Drop, Product, MediaCard } from '$lib/types';
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async (event) => {
+	const client = createServerPayloadClient(event);
+
 	// Parallel data fetching
 	const [activeDrops, upcomingDrops, archivedDrops, products, mediaCards] = await Promise.all([
 		// 1. Active Drop
-		payloadClient.listDrops({
+		client.getShopDrops({
 			query: {
 				'where[status][equals]': 'ACTIVE',
-				depth: 2, // Need products and banners
 				limit: 1
 			}
 		}),
 		// 2. Upcoming Drop
-		payloadClient.listDrops({
+		client.getShopDrops({
 			query: {
 				'where[status][equals]': 'SCHEDULED',
 				sort: 'release_date',
@@ -22,7 +22,7 @@ export const load: PageServerLoad = async () => {
 			}
 		}),
 		// 3. Previous Drops
-		payloadClient.listDrops({
+		client.getShopDrops({
 			query: {
 				'where[status][equals]': 'ARCHIVED',
 				sort: '-end_date',
@@ -30,16 +30,15 @@ export const load: PageServerLoad = async () => {
 			}
 		}),
 		// 4. Explore Products
-		payloadClient.listProducts({
+		client.getShopProducts({
 			query: {
 				'where[status][equals]': 'AVAILABLE',
 				limit: 12
 			}
 		}),
 		// 5. Explore Media
-		payloadClient.listMediaCards({
+		client.getShopMediaCards({
 			query: {
-				depth: 1,
 				limit: 8
 			}
 		})

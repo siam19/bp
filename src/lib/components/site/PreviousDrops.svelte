@@ -1,10 +1,10 @@
 <script lang="ts">
-	import type { Drop } from '$lib/types';
+	import type { ShopDrop } from '$lib/types';
 	import DropArchiveCard from './DropArchiveCard.svelte';
 
-	let { drops } = $props<{ drops: Drop[] }>();
+	let { drops } = $props<{ drops: ShopDrop[] }>();
 
-	function transformDrop(drop: Drop) {
+	function transformDrop(drop: ShopDrop) {
 		return {
 			id: drop.id,
 			slug: drop.slug,

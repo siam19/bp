@@ -24,6 +24,86 @@ This document outlines the frontend architecture, page logic, state management, 
 
 ---
 
+## Expected API Data (Server Load)
+
+This section details the data structure expected by the frontend `load` functions for each route. The backend should provide data matching these interfaces (defined in `src/lib/types.ts`).
+
+### Home (`/`)
+**Source**: `src/routes/+page.server.ts`
+```typescript
+interface PageData {
+  activeDrop: Drop | null;      // The single currently ACTIVE drop
+  upcomingDrop: Drop | null;    // The next SCHEDULED drop
+  archivedDrops: Drop[];        // List of ARCHIVED drops
+  exploreProducts: Product[];   // Random/Featured products for masonry grid
+  exploreMedia: MediaCard[];    // Media assets for masonry grid
+}
+```
+
+### Drops (`/d`)
+**Source**: `src/routes/d/+page.server.ts`
+```typescript
+interface PageData {
+  drops: Drop[]; // All drops (Active, Scheduled, Archived)
+}
+```
+
+### Drop Detail (`/d/[slug]`)
+**Source**: `src/routes/d/[slug]/+page.server.ts`
+```typescript
+interface PageData {
+  drop: Drop; // Full drop details including populated 'products'
+}
+```
+
+### Product Catalog (`/p`)
+**Source**: `src/routes/p/+page.server.ts`
+```typescript
+interface PageData {
+  products: Product[]; // All published products
+}
+```
+
+### Product Detail (`/p/[slug]`)
+**Source**: `src/routes/p/[slug]/+page.server.ts`
+```typescript
+interface PageData {
+  product: Product; // Full product details including populated 'variants' and 'related_products'
+}
+```
+
+### Receipt (`/receipt/[orderId]`)
+**Source**: `src/routes/receipt/[orderId]/+page.server.ts`
+```typescript
+interface PageData {
+  order: {
+    id: string;
+    total: number;
+    status: OrderStatus;
+    items: {
+      name: string;
+      size: string;
+      qty: number;
+      price: number;
+      image: string;
+    }[];
+    receiver: {
+      name: string;
+      phone: string; // Masked (e.g., 017******89)
+      address: string; // Masked
+      backup?: string; // Masked
+    };
+    tracking: {
+      id: string;
+      status: string;
+      updated: string;
+    };
+  };
+}
+```
+
+---
+
 ## State Management
 
 ### Cart Store (`src/lib/stores/cart.svelte.ts`)

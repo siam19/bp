@@ -1,17 +1,18 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import StatusBadge from './StatusBadge.svelte';
-	import type { Drop, MediaAsset } from '$lib/types';
+	import type { DropStatus, ShopImage } from '$lib/types';
+	import { resolveShopImage } from '$lib/utils/media';
 
 	// Define the shape of data we expect for the card
 	interface DropCardData {
 		id: string;
 		slug: string;
 		name: string;
-		status: Drop['status'];
-		release_date: string;
+		status: DropStatus;
+		release_date?: string;
 		end_date?: string;
-		banner: MediaAsset | null;
+		banner: ShopImage | null;
 	}
 
 	let { drop } = $props<{ drop: DropCardData }>();
@@ -38,7 +39,7 @@
 			return `Ends in ${daysLeft} Day${daysLeft !== 1 ? 's' : ''}`;
 		}
 
-		if (d.status === 'SCHEDULED') {
+		if (d.status === 'SCHEDULED' && d.release_date) {
 			const releaseDate = new Date(d.release_date);
 			const daysUntil = Math.ceil((releaseDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 			return `Launches in ${daysUntil} Day${daysUntil !== 1 ? 's' : ''}`;
@@ -70,7 +71,7 @@
 >
 	<!-- Background Image -->
 	<img
-		src={drop.banner?.url ?? '/placeholder-drop.jpg'}
+		src={resolveShopImage(drop.banner) || '/placeholder-drop.jpg'}
 		alt={drop.name}
 		class="absolute inset-0 h-full w-full object-cover"
 	/>

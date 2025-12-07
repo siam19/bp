@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Masonry } from 'svelte-bricks';
+    import Masonry from 'svelte-bricks';
     import ProductCard from './ProductCard.svelte';
     import MediaCard from './MediaCard.svelte';
     import type { MasonryItem } from '$lib/types';

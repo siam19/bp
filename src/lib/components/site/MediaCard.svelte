@@ -1,6 +1,9 @@
 <script lang="ts">
     import { ShoppingBag, X } from "lucide-svelte";
     import { onMount, tick } from "svelte";
+    import ProductCard from './ProductCard.svelte';
+    import { payloadClient } from '$lib/api/payload';
+    import type { ShopProduct } from '$lib/types';
 
     const VIDEO_EXTENSIONS = [
         "mp4",
@@ -26,6 +29,8 @@
     let isModalOpen = $state(false);
     let videoElement = $state<HTMLVideoElement | undefined>(undefined);
     let dialogRef = $state<HTMLDivElement | null>(null);
+    let fetchedProducts = $state<ShopProduct[]>([]);
+    let loadingProducts = $state(false);
 
     const taggedCount = $derived(safeMedia.taggedProducts?.length ?? 0);
     const sanitizedUrl = $derived(safeMedia.mediaURL?.split("?")[0]?.toLowerCase() ?? "");
@@ -80,6 +85,24 @@
         await tick();
         dialogRef?.focus();
         ensureAutoplay();
+        loadTaggedProducts();
+    }
+
+    async function loadTaggedProducts() {
+        if (fetchedProducts.length > 0 || safeMedia.taggedProducts.length === 0) return;
+        
+        loadingProducts = true;
+        try {
+            const promises = safeMedia.taggedProducts.map((id: string) => 
+                payloadClient.getShopProduct(id).catch(() => null)
+            );
+            const results = await Promise.all(promises);
+            fetchedProducts = results.filter((p): p is ShopProduct => p !== null);
+        } catch (e) {
+            console.error("Failed to load tagged products", e);
+        } finally {
+            loadingProducts = false;
+        }
     }
 
     function closeModal() {
@@ -200,7 +223,19 @@
                         <h2 class="text-xl font-semibold">{safeMedia.title}</h2>
                         <p class="text-sm text-gray-600">Tagged products</p>
 
-                        {#if taggedCount > 0}
+                        {#if loadingProducts}
+                            <div class="flex items-center justify-center py-8">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
+                            </div>
+                        {:else if fetchedProducts.length > 0}
+                            <div class="flex-1 overflow-y-auto pr-2">
+                                <div class="grid grid-cols-1 gap-4">
+                                    {#each fetchedProducts as product (product.id)}
+                                        <ProductCard {product} />
+                                    {/each}
+                                </div>
+                            </div>
+                        {:else if taggedCount > 0}
                             <div class="flex-1 overflow-y-auto pr-2">
                                 <ul class="grid grid-cols-2 gap-2">
                                     {#each safeMedia.taggedProducts as productId (productId)}

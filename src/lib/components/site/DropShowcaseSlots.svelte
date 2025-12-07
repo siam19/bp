@@ -1,22 +1,23 @@
 <script lang="ts">
-	import type { Product } from '$lib/types';
+	import type { ShopProduct } from '$lib/types';
+	import { resolveShopImage } from '$lib/utils/media';
 	import { fade } from 'svelte/transition';
 	import { onMount } from 'svelte';
 
-	let { products } = $props<{ products: Product[] }>();
+	let { products } = $props<{ products: ShopProduct[] }>();
 
 	// We need at least a few products to make this interesting
 	// If fewer than 3, we just show what we have statically
 	let validProducts = $derived(
-		products.filter((p) => p.images?.front?.url || p.images?.front?.sizes?.card?.url)
+		products.filter((p: ShopProduct) => p.images?.front)
 	);
 
 	let slot1Index = $state(0);
 	let slot2Index = $state(0);
 	let slot3Index = $state(0);
 
-	function getImage(product: Product) {
-		return product.images?.front?.url ?? product.images?.front?.sizes?.card?.url ?? '';
+	function getImage(product: ShopProduct) {
+		return resolveShopImage(product.images?.front);
 	}
 
 	onMount(() => {

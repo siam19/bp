@@ -50,6 +50,8 @@ export function isVariant(value: unknown): value is Variant {
 	);
 }
 
+import { getMediaUrl as getShopMediaUrl } from './media';
+
 /**
  * Extract URL from MediaAsset, handling both populated objects and ID strings
  * @param {string | MediaAsset | null | undefined} media - Media reference
@@ -58,7 +60,12 @@ export function isVariant(value: unknown): value is Variant {
 export function getMediaUrl(media: string | MediaAsset | null | undefined): string | null {
 	if (!media) return null;
 	if (typeof media === 'string') return null; // Just an ID, not populated
-	if (isMediaAsset(media)) return media.url || null;
+	if (isMediaAsset(media)) {
+		if (media.filename) {
+			return getShopMediaUrl(media.filename);
+		}
+		return media.url || null;
+	}
 	return null;
 }
 
@@ -68,6 +75,12 @@ export function getMediaUrl(media: string | MediaAsset | null | undefined): stri
  * @returns {string | null} Thumbnail URL if available
  */
 export function getThumbnailUrl(media: MediaAsset): string | null {
+	if (media.sizes?.thumbnail?.filename) {
+		return getShopMediaUrl(media.sizes.thumbnail.filename);
+	}
+	if (media.filename) {
+		return getShopMediaUrl(media.filename);
+	}
 	return media.sizes?.thumbnail?.url || media.thumbnailURL || media.url || null;
 }
 
@@ -77,5 +90,11 @@ export function getThumbnailUrl(media: MediaAsset): string | null {
  * @returns {string | null} Card-sized URL if available
  */
 export function getCardUrl(media: MediaAsset): string | null {
+	if (media.sizes?.card?.filename) {
+		return getShopMediaUrl(media.sizes.card.filename);
+	}
+	if (media.filename) {
+		return getShopMediaUrl(media.filename);
+	}
 	return media.sizes?.card?.url || media.url || null;
 }

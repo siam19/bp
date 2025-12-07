@@ -1,15 +1,29 @@
 <script lang="ts">
 	import DropArchiveCard from '$lib/components/site/DropArchiveCard.svelte';
+	import type { PageData } from './$types';
+	import type { ShopDrop } from '$lib/types';
 
-	let { data } = $props();
+	let { data }: { data: PageData } = $props();
 	
 	// Group drops by status
-	let liveDrops = $derived(data.drops.filter((d) => d.status === 'ACTIVE'));
-	let upcomingDrops = $derived(data.drops.filter((d) => d.status === 'SCHEDULED'));
-	let archivedDrops = $derived(data.drops.filter((d) => d.status === 'ARCHIVED'));
+	let liveDrops = $derived(data.drops.filter((d: ShopDrop) => d.status === 'ACTIVE'));
+	let upcomingDrops = $derived(data.drops.filter((d: ShopDrop) => d.status === 'SCHEDULED'));
+	let archivedDrops = $derived(data.drops.filter((d: ShopDrop) => d.status === 'ARCHIVED'));
 
 	// Combined list for display (Live -> Upcoming -> Archived)
 	let sortedDrops = $derived([...liveDrops, ...upcomingDrops, ...archivedDrops]);
+
+	function transformDrop(drop: ShopDrop) {
+		return {
+			id: drop.id,
+			slug: drop.slug,
+			name: drop.name,
+			status: drop.status,
+			release_date: drop.release_date,
+			end_date: drop.end_date,
+			banner: drop.assets?.banners?.[0] ?? null
+		};
+	}
 </script>
 
 <div class="min-h-screen bg-black pb-20">
@@ -28,7 +42,7 @@
 		{:else}
 			<div class="space-y-8">
 				{#each sortedDrops as drop (drop.id)}
-					<DropArchiveCard {drop} />
+					<DropArchiveCard drop={transformDrop(drop)} />
 				{/each}
 			</div>
 		{/if}

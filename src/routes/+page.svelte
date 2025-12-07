@@ -6,15 +6,16 @@
 	import UpcomingDropBanner from '$lib/components/site/UpcomingDropBanner.svelte';
 	import PreviousDrops from '$lib/components/site/PreviousDrops.svelte';
 	import MasonryGrid from '$lib/components/site/MasonryGrid.svelte';
-	import type { Product, MediaCard as MediaCardType } from '$lib/types';
+	import type { ShopProduct, MediaCard as MediaCardType, ShopMediaCard } from '$lib/types';
 	import type { MasonryItem } from '$lib/types';
+	import { getMediaUrl } from '$lib/utils/media';
 
 	let { data } = $props();
 	let activeDrop = $derived(data.activeDrop);
 	let upcomingDrop = $derived(data.upcomingDrop);
 	let archivedDrops = $derived(data.archivedDrops);
 	let exploreProducts = $derived(data.exploreProducts);
-	let exploreMedia = $derived(data.exploreMedia);
+	let exploreMedia = $derived(data.exploreMedia as ShopMediaCard[]);
 
 	// Countdown Logic for Active Drop
 	let activeCountdownConfig = $derived.by(() => {
@@ -29,8 +30,8 @@
 
 	// Masonry Items Transform
 	function buildMasonryItems(
-		products: Product[],
-		mediaCards: MediaCardType[]
+		products: ShopProduct[],
+		mediaCards: ShopMediaCard[]
 	): MasonryItem[] {
 		const productItems: MasonryItem[] = products.map((p) => ({
 			id: `p-${p.id}`,
@@ -41,7 +42,11 @@
 		const mediaItems: MasonryItem[] = mediaCards.map((m) => ({
 			id: `m-${m.id}`,
 			type: 'media' as const,
-			media: m
+			media: {
+				mediaURL: getMediaUrl(m.filename),
+				title: '',
+				taggedProducts: m.tagged_products.map((p) => p.id)
+			}
 		}));
 
 		// Interleave: product, media, product, product, media pattern
@@ -88,7 +93,7 @@
 				<!-- Showcase Slots -->
 				{#if activeDrop.products}
 					<div class="mx-auto max-w-4xl">
-						<DropShowcaseSlots products={activeDrop.products as Product[]} />
+						<DropShowcaseSlots products={activeDrop.products as ShopProduct[]} />
 					</div>
 				{/if}
 

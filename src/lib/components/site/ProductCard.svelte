@@ -1,23 +1,16 @@
 <script lang="ts">
-	import type { Product, MediaAsset, Variant } from '$lib/types';
+	import type { ShopProduct } from '$lib/types';
+	import { resolveShopImage } from '$lib/utils/media';
 	import ProductSizeBox from './ProductSizeBox.svelte';
 
-	let { product } = $props<{ product: Product }>();
-
-	function getImageUrl(image: string | MediaAsset | undefined): string {
-		if (!image) return '';
-		if (typeof image === 'string') return image;
-		return image.url || '';
-	}
+	let { product } = $props<{ product: ShopProduct }>();
 
 	let sizes = $derived.by(() => {
-		if (!product.variants?.docs) return [];
-		return product.variants.docs
-			.map((v: string | Variant) => {
-				if (typeof v === 'string') return null; // Skip ID-only variants for now
+		if (!product.variants) return [];
+		return product.variants
+			.map((v: any) => {
 				return { size: v.size, available: v.stock_count > 0 };
 			})
-			.filter((v: { size: string; available: boolean } | null) => v !== null)
 			.slice(0, 5);
 	});
 </script>
@@ -30,7 +23,7 @@
 	<div class="aspect-square bg-[#e5e5e5] rounded-lg mb-4 relative overflow-hidden">
 		{#if product.images?.front}
 			<img
-				src={getImageUrl(product.images.front)}
+				src={resolveShopImage(product.images.front)}
 				alt={product.name}
 				class="w-full h-full object-cover mix-blend-multiply group-hover:scale-105 transition-transform duration-500"
 			/>

@@ -36,8 +36,8 @@ export interface MediaAsset {
   filesize?: number | null;
   thumbnailURL?: string | null;
   sizes?: {
-    thumbnail?: { url?: string | null; width?: number; height?: number };
-    card?: { url?: string | null; width?: number; height?: number };
+    thumbnail?: { url?: string | null; width?: number; height?: number; filename?: string | null };
+    card?: { url?: string | null; width?: number; height?: number; filename?: string | null };
   };
   updatedAt: string;
   createdAt: string;
@@ -100,6 +100,68 @@ export interface MediaCard {
   createdAt: string;
 }
 
+// --- Shop API Types (v2.1) ---
+
+export interface ShopImage {
+  filename: string;
+  thumbnail?: {
+    filename: string;
+  };
+}
+
+export interface ShopProduct {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  status: ProductStatus;
+  tags?: string[];
+  images: {
+    front: ShopImage;
+    back?: ShopImage;
+    profile?: ShopImage;
+  };
+  variants: {
+    id?: string;
+    sku: string;
+    size: VariantSize;
+    stock_count: number;
+  }[];
+  related_products?: { id: string }[];
+  description?: any[];
+  featured?: boolean;
+}
+
+export interface ShopDrop {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  status: DropStatus;
+  release_date?: string;
+  end_date?: string;
+  products: ShopProduct[];
+  assets?: {
+    banners?: ShopImage[];
+    video_embed_url?: string;
+  };
+}
+
+export interface ShopMediaCard {
+  id: string;
+  filename: string;
+  height: number;
+  width: number;
+  tagged_products: { id: string; slug: string }[];
+}
+
+export interface ShopInfoPage {
+  tabs: {
+    label: string;
+    content: any[];
+  }[];
+}
+
 export interface CmsPage {
   id: string;
   title: string;
@@ -154,6 +216,8 @@ export interface OrderItem {
 
 export interface Order {
   id: string;
+  client_order_id?: string | null;
+  pin?: string | null;
   customer_info: CustomerInfo;
   items: OrderItem[];
   total_amount: number;
@@ -238,5 +302,98 @@ export interface MasonryMedia {
 }
 
 export type MasonryItem =
-  | { id: string; type: 'product'; product: Product }
+  | { id: string; type: 'product'; product: ShopProduct }
   | { id: string; type: 'media'; media: MasonryMedia };
+
+export interface InfoPage {
+  tabs: {
+    label: string;
+    content: (
+      | {
+          blockType: 'generic_section';
+          sections?: {
+            title?: string | null;
+            body?: string | null;
+            image?: (string | null) | MediaAsset;
+            id?: string | null;
+          }[] | null;
+          id?: string | null;
+        }
+      | {
+          blockType: 'policy_section';
+          policies?: {
+            title: string;
+            content: string;
+            id?: string | null;
+          }[] | null;
+          id?: string | null;
+        }
+      | {
+          blockType: 'team_section';
+          members?: {
+            name: string;
+            role: string;
+            avatar: string | MediaAsset;
+            id?: string | null;
+          }[] | null;
+          id?: string | null;
+        }
+    )[];
+    id?: string | null;
+  }[];
+}
+
+// API Payloads & Responses
+
+export interface CheckoutPayload {
+  items: {
+    variantId: string;
+    quantity: number;
+    price: number;
+    item_type?: 'existing_product';
+  }[];
+  customer: CustomerInfo;
+  visitor_id?: string;
+  client_order_id: string;
+  payment_method: PaymentMethod;
+}
+
+export interface CheckoutResponse {
+  success: boolean;
+  orderId: string;
+  pin?: string;
+  error?: string;
+}
+
+export interface VerifyOrderPayload {
+  phone: string;
+  key: string;
+}
+
+export interface VerifyOrderResponse {
+  verified: boolean;
+  customer?: CustomerInfo;
+  tracking?: {
+    consignment_id?: number | null;
+    tracking_code?: string | null;
+    current_status?: string | null;
+  };
+  error?: string;
+}
+
+export interface ReceiptResponse {
+  authorized: boolean;
+  order: Order;
+}
+
+export interface TrackingResponse {
+  delivery_status?: string;
+  current_location?: string;
+  estimated_delivery?: string;
+  status?: string;
+  error?: string;
+}
+
+export interface ResendKeyResponse {
+  key: string;
+}
