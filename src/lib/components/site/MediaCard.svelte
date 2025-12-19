@@ -2,7 +2,8 @@
     import { ShoppingBag, X } from "lucide-svelte";
     import { onMount, tick } from "svelte";
     import ProductCard from './ProductCard.svelte';
-    import { payloadClient } from '$lib/api/payload';
+    import { browser } from '$app/environment';
+    import { createPayloadClient } from '$lib/api/payload';
     import type { ShopProduct } from '$lib/types';
 
     const VIDEO_EXTENSIONS = [
@@ -90,9 +91,11 @@
 
     async function loadTaggedProducts() {
         if (fetchedProducts.length > 0 || safeMedia.taggedProducts.length === 0) return;
+        if (!browser) return;
         
         loadingProducts = true;
         try {
+            const payloadClient = createPayloadClient();
             const promises = safeMedia.taggedProducts.map((id: string) => 
                 payloadClient.getShopProduct(id).catch(() => null)
             );

@@ -56,6 +56,8 @@
 			})
 			.filter((v) => v.id !== '');
 	});
+	
+	
 
 	function addToCart() {
 		if (!selectedSize) return;
@@ -74,7 +76,11 @@
 		});
 
 		ui.openCartSheet();
+
+
 	}
+
+	console.log('Product Page Product:', product);
 </script>
 
 <div class="pt-24 pb-12 px-4 sm:px-6 lg:px-8 min-h-screen">

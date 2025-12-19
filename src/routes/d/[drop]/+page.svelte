@@ -76,7 +76,6 @@
 </script>
 
 <div class="min-h-screen bg-black pb-20">
-	<Navbar />
 
 	<!-- Hero: Carousel -->
 	{#if data.drop.assets?.banners?.length}
