@@ -17,16 +17,16 @@
 
 <Sheet bind:open={ui.mobileMenuOpen}>
 	<SheetContent side="left" class="bg-black">
-		<SheetHeader>
+		<!-- <SheetHeader>
 			<SheetTitle>Menu</SheetTitle>
-		</SheetHeader>
+		</SheetHeader> -->
 
 		<div class="flex-1 flex flex-col justify-center gap-8 px-6 py-12">
 			{#each navLinks as link}
 				<a
 					href={link.href}
 					onclick={handleLinkClick}
-					class="text-3xl font-bold uppercase text-white hover:text-red-500 transition-colors"
+					class="text-3xl uppercase text-white hover:text-red-500 transition-colors"
 				>
 					{link.label}
 				</a>

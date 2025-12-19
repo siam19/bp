@@ -128,9 +128,9 @@
 	}
 </script>
 
-<div class="mx-auto flex min-h-screen max-w-md flex-col bg-[#050505] pb-10 shadow-2xl shadow-black">
-	<main class="flex flex-1 flex-col px-4 pt-24">
-		<h1 class="mb-8 px-2 font-sans text-4xl font-black uppercase tracking-tight text-white">
+<div class="mx-auto flex min-h-screen max-w-md flex-col pb-10 shadow-2xl shadow-black">
+	<main class="flex flex-1 flex-col px-4 pt-10">
+		<h1 class="mb-8 px-2 font-sans text-4xl text-center font-black uppercase tracking-tight text-white">
 			Contact
 		</h1>
 
@@ -261,7 +261,7 @@
 					</div>
 
 					<!-- Attachments -->
-					<div class="space-y-1">
+					<!-- <div class="space-y-1">
 						<div class="text-xs font-bold uppercase text-gray-500">Attachment</div>
 						
 						{#if formData.attachment}
@@ -316,7 +316,7 @@
 								{/if}
 							</div>
 						{/if}
-					</div>
+					</div> -->
 
 					<!-- Submit -->
 					<div class="pt-4">

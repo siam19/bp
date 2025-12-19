@@ -9,6 +9,7 @@
 	let { data } = $props<{ data: { productsData: PaginatedResponse<ShopProduct> } }>();
 
 	// Initialize state from server data
+	let allProducts = $state<ShopProduct[]>([]);
 	let products = $state<ShopProduct[]>([]);
 	let drops = $state<ShopDrop[]>([]);
 	let dropsLoading = $state(true);
@@ -21,19 +22,31 @@
 
 	// Sync state with server data
 	$effect(() => {
+		allProducts = data.productsData.docs;
 		products = data.productsData.docs;
 		currentPage = data.productsData.page;
 		hasNextPage = data.productsData.hasNextPage;
 	});
 
-	// Derived: Convert products to MasonryItems
-	let masonryItems = $derived<MasonryItem[]>(
-		products.map((product) => ({
+	// Derived: Convert products to MasonryItems with search filtering
+	let masonryItems = $derived.by(() => {
+		let filtered = products;
+		
+		// Client-side search filtering
+		if (searchTerm.trim()) {
+			const term = searchTerm.toLowerCase().trim();
+			filtered = filtered.filter((p) => 
+				p.name.toLowerCase().includes(term) ||
+				(p.tags && p.tags.some(t => t.toLowerCase().includes(term)))
+			);
+		}
+		
+		return filtered.map((product) => ({
 			id: product.id,
 			type: 'product' as const,
 			product
-		}))
-	);
+		}));
+	});
 
 	// Fetch drops for filter chips (client-side after main content loads)
 	onMount(() => {
@@ -55,7 +68,7 @@
 		if (sentinel) {
 			observer = new IntersectionObserver(
 				(entries) => {
-					if (entries[0].isIntersecting && hasNextPage && !isLoadingMore) {
+					if (entries[0].isIntersecting && hasNextPage && !isLoadingMore && !activeFilter) {
 						loadMoreProducts();
 					}
 				},
@@ -69,24 +82,18 @@
 		};
 	});
 
-	// Load more products (infinite scroll)
+	// Load more products (infinite scroll) - only for "ALL" view
 	async function loadMoreProducts() {
-		if (isLoadingMore || !hasNextPage) return;
+		if (isLoadingMore || !hasNextPage || activeFilter) return;
 		isLoadingMore = true;
 
 		try {
 			const nextPage = currentPage + 1;
 			const query: Record<string, any> = { limit: 12, page: nextPage };
 
-			if (searchTerm) {
-				query['where[name][contains]'] = searchTerm;
-			}
-			if (activeFilter) {
-				query['where[drop][equals]'] = activeFilter;
-			}
-
 			const moreProducts = await payloadClient.getShopProducts({ query });
-			products = [...products, ...moreProducts.docs];
+			allProducts = [...allProducts, ...moreProducts.docs];
+			products = allProducts;
 			currentPage = moreProducts.page;
 			hasNextPage = moreProducts.hasNextPage;
 		} catch (error) {
@@ -96,44 +103,27 @@
 		}
 	}
 
-	// Search handler with debounce
+	// Search handler with debounce (client-side filtering via derived)
 	function handleSearch(event: Event) {
 		const target = event.target as HTMLInputElement;
 		searchTerm = target.value;
-
-		if (searchDebounceTimer) {
-			clearTimeout(searchDebounceTimer);
-		}
-
-		searchDebounceTimer = setTimeout(async () => {
-			await fetchFilteredProducts();
-		}, 300);
 	}
 
 	// Filter by drop
 	async function handleFilterClick(dropId: string | null) {
 		activeFilter = dropId;
-		await fetchFilteredProducts();
-	}
-
-	// Fetch products with current filters
-	async function fetchFilteredProducts() {
-		const query: Record<string, any> = { limit: 12, page: 1 };
-
-		if (searchTerm) {
-			query['where[name][contains]'] = searchTerm;
-		}
-		if (activeFilter) {
-			query['where[drop][equals]'] = activeFilter;
-		}
-
-		try {
-			const result = await payloadClient.getShopProducts({ query });
-			products = result.docs;
-			currentPage = result.page;
-			hasNextPage = result.hasNextPage;
-		} catch (error) {
-			console.error('Failed to fetch filtered products:', error);
+		
+		if (dropId === null) {
+			// Show all products
+			products = allProducts;
+			hasNextPage = data.productsData.hasNextPage;
+		} else {
+			// Get products from the selected drop
+			const selectedDrop = drops.find(d => d.id === dropId);
+			if (selectedDrop && selectedDrop.products) {
+				products = selectedDrop.products;
+				hasNextPage = false; // Drop products are already complete
+			}
 		}
 	}
 </script>
@@ -143,9 +133,9 @@
 </svelte:head>
 
 <div class="min-h-screen bg-[#050505]">
-	<Navbar />
 
-	<main class="max-w-md mx-auto px-4 pt-20 pb-10">
+	<main class="max-w-md mx-auto px-4 pt-5
+     pb-10">
 		<!-- Sticky Search / Filter Header -->
 		<div
 			class="sticky top-0 z-40 bg-[#050505]/95 backdrop-blur-sm pb-4 pt-2 -mx-4 px-4 border-b border-gray-900 mb-6"

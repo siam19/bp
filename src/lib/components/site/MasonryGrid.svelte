@@ -30,7 +30,7 @@
     maxColWidth={364}
     gap={16}
     {calcCols}
-    class="px-4 py-8"
+    class=" py-8"
 >
     {#snippet children({ item }: { item: MasonryItem })}
         {#if item.type === 'product'}

@@ -1,6 +1,7 @@
 import type { ShopImage } from '$lib/types';
 
-export const MEDIA_BASE_URL = 'https://payload.banglapunk.com';
+// export const MEDIA_BASE_URL = 'https://payload.banglapunk.com';
+export const MEDIA_BASE_URL = 'https://admin.banglapunk.com/api/media/file/';
 
 export function getMediaUrl(filename: string): string {
   if (!filename) return '';

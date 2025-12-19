@@ -135,9 +135,8 @@
 	let selectedSize = $state<string | null>(null);
 	let quantity = $state(1);
 	
-	// Gallery state - 3-slot rotation
-	let galleryIndices = $state([0, 1, 2]);
-	let rotationInterval: ReturnType<typeof setInterval> | null = null;
+	// Gallery state
+	let activeImageIndex = $state(0);
 
 	// Modal state
 	let imageModalOpen = $state(false);
@@ -163,31 +162,9 @@
 		return getMediaUrl(filename);
 	}
 
-	// Gallery rotation logic (clockwise: Main -> TopRight -> BottomRight -> Main)
-	function rotateGallery() {
-		if (images.length < 3) return;
-		galleryIndices = [
-			galleryIndices[2],
-			galleryIndices[0],
-			galleryIndices[1]
-		];
-	}
-
-	onMount(() => {
-		if (images.length >= 3) {
-			rotationInterval = setInterval(rotateGallery, 5000);
-		}
-	});
-
-	onDestroy(() => {
-		if (rotationInterval) {
-			clearInterval(rotationInterval);
-		}
-	});
-
 	// Image modal navigation
-	function openImageModal(slotIndex: number) {
-		modalImageIndex = galleryIndices[slotIndex] ?? 0;
+	function openImageModal(index: number) {
+		modalImageIndex = index;
 		imageModalOpen = true;
 	}
 
@@ -238,79 +215,44 @@
 	<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-20">
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
 			<!-- Product Gallery -->
-			<section class="h-[500px] lg:h-[600px]">
-				{#if images.length === 0}
-					<div class="w-full h-full bg-[#1a1a1a] rounded-xl flex items-center justify-center text-gray-600">
-						No Image Available
-					</div>
-				{:else if images.length === 1}
-					<button
-						type="button"
-						class="w-full h-full bg-[#1a1a1a] rounded-xl overflow-hidden cursor-pointer group"
-						onclick={() => openImageModal(0)}
+			<section class="h-auto">
+				<div class="space-y-4">
+					<button 
+						class="w-full aspect-square bg-[#1a1a1a] rounded-xl overflow-hidden cursor-pointer"
+						onclick={() => openImageModal(activeImageIndex)}
 					>
-						<img
-							src={getImageUrl(images[0])}
-							class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-							alt={product.name}
-						/>
+						{#if images.length > 0}
+							<img
+								src={getImageUrl(images[activeImageIndex])}
+								alt={product.name}
+								class="w-full h-full object-cover"
+							/>
+						{:else}
+							<div class="w-full h-full flex items-center justify-center text-gray-600">
+								No Image Available
+							</div>
+						{/if}
 					</button>
-				{:else}
-					<!-- Multi-image Grid -->
-					<div class="grid grid-cols-2 gap-2 h-full">
-						<!-- Slot 0: Main (Left) -->
-						<button
-							type="button"
-							class="relative w-full h-full bg-[#1a1a1a] rounded-xl overflow-hidden cursor-pointer group"
-							onclick={() => openImageModal(0)}
-						>
-							{#if images[galleryIndices[0]]}
-								<img
-									src={getImageUrl(images[galleryIndices[0]])}
-									class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-									alt={product.name}
-								/>
-							{/if}
-						</button>
-
-						<!-- Right Column -->
-						<div class="flex flex-col gap-2 h-full">
-							<!-- Slot 1: Top Right -->
-							{#if images.length >= 2}
+					{#if images.length > 1}
+						<div class="grid grid-cols-4 gap-4">
+							{#each images as img, i}
 								<button
-									type="button"
-									class="relative w-full {images.length >= 3 ? 'h-1/2' : 'h-full'} bg-[#1a1a1a] rounded-xl overflow-hidden cursor-pointer group"
-									onclick={() => openImageModal(1)}
+									class="aspect-square bg-[#1a1a1a] rounded-lg overflow-hidden border-2 transition-colors {activeImageIndex ===
+									i
+										? 'border-white'
+										: 'border-transparent'}"
+									onclick={() => (activeImageIndex = i)}
 								>
-									{#if images[galleryIndices[1]]}
-										<img
-											src={getImageUrl(images[galleryIndices[1]])}
-											class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-											alt={product.name}
-										/>
-									{/if}
+									<img
+										src={getImageUrl(img)}
+										alt=""
+										class="w-full h-full object-cover"
+									/>
 								</button>
-							{/if}
-							
-							<!-- Slot 2: Bottom Right -->
-							{#if images.length >= 3}
-								<button
-									type="button"
-									class="relative w-full h-1/2 bg-[#1a1a1a] rounded-xl overflow-hidden cursor-pointer group"
-									onclick={() => openImageModal(2)}
-								>
-									{#if images[galleryIndices[2]]}
-										<img
-											src={getImageUrl(images[galleryIndices[2]])}
-											class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-											alt={product.name}
-										/>
-									{/if}
-								</button>
-							{/if}
+							{/each}
 						</div>
-					</div>
-				{/if}
+					{/if}
+				</div>
 			</section>
 
 			<!-- Product Info -->
