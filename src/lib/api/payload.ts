@@ -328,30 +328,7 @@ export const createPayloadClient = (config: PayloadClientConfig = {}) => {
     }),
     getShopMediaCards: (options?: RequestOptions) => list<ShopMediaCard>('shop/media-cards', options),
     getShopProductMediaCards: (productId: string, options?: RequestOptions) => list<ShopMediaCard>(`shop/media-cards/${productId}`, options),
-    
-    // Auth
-    login: (credentials: { email: string; password: string }, options?: MutationOptions) =>
-      request<LoginResponse>('/users/login', {
-        method: 'POST',
-        body: credentials,
-        signal: options?.signal,
-        fetch: options?.fetch,
-        headers: options?.headers
-      }),
-    logout: (options?: MutationOptions) =>
-      request<{ message: string }>('/users/logout', {
-        method: 'POST',
-        signal: options?.signal,
-        fetch: options?.fetch,
-        headers: options?.headers
-      }),
-    me: (options?: RequestOptions) =>
-      request<{ user: User | null }>('/users/me', {
-        query: options?.query,
-        signal: options?.signal,
-        fetch: options?.fetch,
-        headers: options?.headers
-      })
+   
   };
 };
 

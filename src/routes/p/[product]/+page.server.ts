@@ -16,9 +16,23 @@ export const load: PageServerLoad = async (event) => {
 		// Fetch related media (tagged with this product)
 		const mediaCards = await client.getShopProductMediaCards(product.id);
 
+		// Fetch related products details if they exist
+		let relatedProducts: any[] = [];
+		if (product.related_products && product.related_products.length > 0) {
+			const relatedIds = product.related_products.map((p: any) => p.id);
+			const relatedProductsData = await client.getShopProducts({
+				query: {
+					'where[id][in]': relatedIds.join(','),
+					limit: relatedIds.length
+				}
+			});
+			relatedProducts = relatedProductsData.docs;
+		}
+
 		return {
 			product,
-			relatedMedia: mediaCards.docs
+			relatedMedia: mediaCards.docs,
+			relatedProducts
 		};
 	} catch (err) {
 		// If it's already a 404 error, convert to SvelteKit error

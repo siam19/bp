@@ -130,6 +130,7 @@ export interface ShopProduct {
   related_products?: { id: string }[];
   description?: any[];
   featured?: boolean;
+  size_guide?: string;
 }
 
 export interface ShopDrop {
