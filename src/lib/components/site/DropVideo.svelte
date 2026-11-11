@@ -2,7 +2,7 @@
 	import { Play, Pause } from 'lucide-svelte';
 
 	let { url } = $props<{ url: string }>();
-	let video: HTMLVideoElement;
+	let video = $state<HTMLVideoElement>();
 	let paused = $state(true);
 
 	function getEmbedUrl(inputUrl: string): string {

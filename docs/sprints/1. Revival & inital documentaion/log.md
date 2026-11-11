@@ -1,0 +1,1 @@
+Each sprint folder will have a log.md file that records all the chandes you made, files you created and why you did that. Keep it a numbered list. 

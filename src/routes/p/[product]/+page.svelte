@@ -204,7 +204,6 @@
 
 		ui.openCartSheet();
 	}
-	console.log(product)
 </script>
 
 <svelte:head>
